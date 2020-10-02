@@ -1,4 +1,4 @@
-import { Action, Reducer } from 'redux';
+import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types'
 

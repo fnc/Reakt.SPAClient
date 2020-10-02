@@ -1,0 +1,2 @@
+export const REQUEST_BOARDS = "REQUEST_BOARDS";
+export const RECEIVE_BOARDS = "RECEIVE_BOARDS";

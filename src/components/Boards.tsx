@@ -25,8 +25,7 @@ class Boards extends React.PureComponent<BoardsProps> {
   public render() {
     return (
       <React.Fragment>
-        <h1 id="tabelLabel">Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server and working with URL parameters.</p>
+        <h1 id="tabelLabel">Boards</h1>        
         {this.renderBoardsTable()}        
       </React.Fragment>
     );
@@ -47,8 +46,8 @@ class Boards extends React.PureComponent<BoardsProps> {
           </tr>
         </thead>
         <tbody>
-          {this.props.boards.map((board: BoardsStore.Board) =>
-            <tr key={board.id}>
+          {this.props.boards.map((board: BoardsStore.Board, index: number) =>
+            <tr key={index}>
               <td>{board.title}</td>
               <td>{board.description}</td>
               <td>{board.posts.length}</td>              

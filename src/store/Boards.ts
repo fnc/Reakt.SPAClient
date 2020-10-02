@@ -43,8 +43,9 @@ export const actionCreators = {
     requestBoards: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
-        if (appState && !appState.boards) {
-            fetch(`https://localhost:44387/api/boards`)
+        if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {
+            console.log("fetching")
+            fetch("https://localhost:44387/api/boards")            
                 .then(response => response.json() as Promise<Board[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_BOARDS, boards: data });
@@ -78,5 +79,7 @@ export const reducer: Reducer<BoardsState> = (state: BoardsState | undefined, ac
                 boards: action.boards,
                 isLoading: false
             };                 
+        default: 
+            return state;
     };        
 };

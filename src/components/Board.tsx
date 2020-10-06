@@ -3,16 +3,18 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import * as BoardsStore from '../store/Boards'
+import * as PostsStore from '../store/Posts'
+import Post from './Post';
 
 // At runtime, Redux will merge together...
-type BoardsProps =
-  BoardsStore.BoardsState // ... state we've requested from the Redux store
-  & typeof BoardsStore.actionCreators // ... plus action creators we've requested
+type BoardProps =
+  { board: Models.Board }
+  & PostsStore.PostsState // ... state we've requested from the Redux store
+  & typeof PostsStore.actionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 
-class Boards extends React.PureComponent<BoardsProps> {
+class Board extends React.PureComponent<BoardProps> {
   // This method is called when the component is first added to the document
   public componentDidMount() {
     this.ensureDataFetched();
@@ -26,34 +28,27 @@ class Boards extends React.PureComponent<BoardsProps> {
   public render() {
     return (
       <React.Fragment>
-        <h1 id="tabelLabel">Boards</h1>        
-        {this.renderBoardsTable()}        
+        <h2 id="tabelLabel">Posts</h2>
+        {this.renderPostsTable()}
       </React.Fragment>
     );
   }
 
-  private ensureDataFetched() {    
-    this.props.requestBoards();
+  private ensureDataFetched() {
+    this.props.requestPosts();
   }
 
-  private renderBoardsTable() {
+  private renderPostsTable() {
     return (
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
             <th>Title</th>
             <th>Description</th>
-            <th># Posts</th>            
           </tr>
         </thead>
         <tbody>
-          {this.props.boards.map((board: Models.Board, index: number) =>
-            <tr key={index}>
-              <td>{board.title}</td>
-              <td>{board.description}</td>
-              <td>{board.posts.length}</td>              
-            </tr>
-          )}
+          {this.props.posts.map((post: Models.Post) => post.title})}
         </tbody>
       </table>
     );
@@ -73,7 +68,14 @@ class Boards extends React.PureComponent<BoardsProps> {
   // }
 }
 
+const mapStateToProps = 
+(state: ApplicationState) => ({
+  board: state.currentBoard,
+  posts: state.posts?state.posts.posts:undefined,
+  isLoading: state.posts?state.posts.isLoading:undefined,
+});
+
 export default connect(
-  (state: ApplicationState) => state.boards, // Selects which state properties are merged into the component's props
-  BoardsStore.actionCreators // Selects which action creators are merged into the component's props
-)(Boards as any);
+  mapStateToProps, // Selects which state properties are merged into the component's props
+  PostsStore.actionCreators // Selects which action creators are merged into the component's props
+)(Board as any);

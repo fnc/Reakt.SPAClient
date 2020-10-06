@@ -1,6 +1,7 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
-import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types'
+import * as Models from '../models/Models';
+import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types';
 
 
 // -----------------
@@ -8,15 +9,10 @@ import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types'
 
 export interface BoardsState {
     isLoading: boolean;    
-    boards: Board[];
+    boards: Models.Board[];
 }
 
-export interface Board {    
-    id: number;
-    title: string;
-    description: string;
-    posts: number[];    
-}
+
 
 // -----------------
 // ACTIONS - These are serializable (hence replayable) descriptions of state transitions.
@@ -28,7 +24,7 @@ interface RequestBoardsAction {
 
 interface ReceiveBoardAction {
     type: typeof RECEIVE_BOARDS;    
-    boards: Board[];
+    boards: Models.Board[];
 }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
@@ -46,7 +42,7 @@ export const actionCreators = {
         if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {
             console.log("fetching")
             fetch("https://localhost:44387/api/boards")            
-                .then(response => response.json() as Promise<Board[]>)
+                .then(response => response.json() as Promise<Models.Board[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_BOARDS, boards: data });
                 });

@@ -30,9 +30,6 @@ class Post extends React.PureComponent<PostProps> {
     );
   }
 
-  private ensureDataFetched() {
-    this.props.requestPosts();
-  }
 
   private renderPostsTable() {
     return (

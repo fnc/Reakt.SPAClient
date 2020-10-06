@@ -1,2 +1,5 @@
 export const REQUEST_BOARDS = "REQUEST_BOARDS";
 export const RECEIVE_BOARDS = "RECEIVE_BOARDS";
+
+export const REQUEST_POSTS = "REQUEST_POSTS";
+export const RECEIVE_POSTS = "RECEIVE_POSTS";

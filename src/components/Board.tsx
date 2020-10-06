@@ -35,7 +35,7 @@ class Board extends React.PureComponent<BoardProps> {
   }
 
   private ensureDataFetched() {
-    this.props.requestPosts();
+    this.props.requestPosts(this.props.board.id);
   }
 
   private renderPostsTable() {

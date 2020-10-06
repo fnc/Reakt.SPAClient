@@ -6,7 +6,6 @@ import Counter from './components/Counter';
 import FetchData from './components/FetchData';
 import Boards from './components/Boards';
 import Board from './components/Board';
-import * as Models from './models/Models';
 
 import './custom.css'
 

@@ -48,7 +48,7 @@ class Board extends React.PureComponent<BoardProps> {
           </tr>
         </thead>
         <tbody>
-          {this.props.posts.map((post: Models.Post) => post.title})}
+          {this.props.posts.map((post: Models.Post) => post.title)}
         </tbody>
       </table>
     );

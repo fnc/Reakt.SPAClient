@@ -3,55 +3,31 @@ import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
+import { ListItem, Typography } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
   { post: Models.Post }
   & typeof PostsStore.actionCreators;
 
-
+// TODO: get the posts into the board props
 class Post extends React.PureComponent<PostProps> {
-  // This method is called when the component is first added to the document
-  public componentDidMount() {
-    //this.ensureDataFetched();
-  }
-
-  // This method is called when the route parameters change
-  public componentDidUpdate() {
-    //this.ensureDataFetched();
-  }
-
-  public render() {
+  public render() {    
+    const d = new Date();
+    const id : number = this.props.post ? this.props.post.id : d.getTime();
+    const title : string = this.props.post ? this.props.post.title : "";
     return (
-      <React.Fragment>
-        <h2 id="tabelLabel">Posts</h2>
-        {this.renderPostsTable()}
-      </React.Fragment>
+      <ListItem key={id}>
+        <Typography variant="h6">Hola, soy un post</Typography>
+        <Typography variant="h6">{title}</Typography>
+      </ListItem>
     );
-  }
-
-
-  private renderPostsTable() {
-    return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-      </table>
-    );
-  }
-
+  }  
 }
 
 const mapStateToProps = 
 (state: ApplicationState) => ({
-  board: state.currentBoard,
+  board: state.boards ? state.boards.currentBoard : undefined,
   posts: state.posts?state.posts.posts:undefined,
   isLoading: state.posts?state.posts.isLoading:undefined,
 });

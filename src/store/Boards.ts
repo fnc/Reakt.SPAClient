@@ -1,7 +1,7 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
-import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types';
+import { REQUEST_BOARDS, RECEIVE_BOARDS, CHANGE_CURR_BOARD  } from '../constants/action-types';
 
 
 // -----------------
@@ -10,9 +10,8 @@ import { REQUEST_BOARDS, RECEIVE_BOARDS } from '../constants/action-types';
 export interface BoardsState {
     isLoading: boolean;    
     boards: Models.Board[];
+    currentBoard: Models.Board;
 }
-
-
 
 // -----------------
 // ACTIONS - These are serializable (hence replayable) descriptions of state transitions.
@@ -27,9 +26,14 @@ interface ReceiveBoardAction {
     boards: Models.Board[];
 }
 
+interface ChangeCurrBoard {
+    type: typeof CHANGE_CURR_BOARD;
+    currentBoard: Models.Board;
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = RequestBoardsAction | ReceiveBoardAction;
+type KnownAction = RequestBoardsAction | ReceiveBoardAction | ChangeCurrBoard;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -39,23 +43,29 @@ export const actionCreators = {
     requestBoards: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
-        if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {
-            console.log("fetching")
+        if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {            
+            dispatch({ type: REQUEST_BOARDS });
             fetch("https://localhost:44387/api/boards")            
                 .then(response => response.json() as Promise<Models.Board[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_BOARDS, boards: data });
                 });
-
-            dispatch({ type: REQUEST_BOARDS });
         }
+    },
+    setCurrentBoard: (board: Models.Board): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        // TODO: only fetch board if it isn't current board. Should this be on Posts? 
+        const appState = getState();        
+        if (appState && appState.boards && appState.boards.currentBoard && appState.boards.currentBoard.id !== board.id) {            
+            //const board = appState.boards?.boards.find((x) => {return x.id === requestedId});
+            dispatch({ type: CHANGE_CURR_BOARD, currentBoard: board });
+        }       
     }
 };
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
-const unloadedState: BoardsState = { boards: [], isLoading: false };
+const unloadedState: BoardsState = { boards: [], isLoading: false, currentBoard: { id: 0, title: "", description: "", posts:[] } };
 
 export const reducer: Reducer<BoardsState> = (state: BoardsState | undefined, action: KnownAction): BoardsState => {        
     if (state === undefined) {
@@ -66,15 +76,21 @@ export const reducer: Reducer<BoardsState> = (state: BoardsState | undefined, ac
         case REQUEST_BOARDS:
             return {                
                 boards: [],
-                isLoading: true
+                isLoading: true,
+                currentBoard: state.currentBoard,
             };
-        case RECEIVE_BOARDS:
-            // Only accept the incoming data if it matches the most recent request. This ensures we correctly
-            // handle out-of-order responses.            
+        case RECEIVE_BOARDS:                  
             return {                
                 boards: action.boards,
-                isLoading: false
-            };                 
+                isLoading: false,
+                currentBoard: state.currentBoard,
+            };   
+        case CHANGE_CURR_BOARD:
+            return {
+                boards: state.boards,
+                isLoading: false,
+                currentBoard: action.currentBoard,
+            };        
         default: 
             return state;
     };        

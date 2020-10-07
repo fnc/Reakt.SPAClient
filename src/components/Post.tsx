@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
-import { ListItem, Typography } from '@material-ui/core';
+import { ListItem, Typography, Card, CardContent } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
@@ -14,12 +14,22 @@ type PostProps =
 class Post extends React.PureComponent<PostProps> {
   public render() {    
     const d = new Date();
-    const id : number = this.props.post ? this.props.post.id : d.getTime();
-    const title : string = this.props.post ? this.props.post.title : "";
+    let id: number = 0;
+    let title: string = "I'm a placeholder title";
+    let description: string = "I'm a placeholder description"
+    if (this.props.post) {
+      id = this.props.post.id;
+      title = this.props.post.title;
+      description = this.props.post.description;
+    }    
     return (
       <ListItem key={id}>
-        <Typography variant="h6">Hola, soy un post</Typography>
-        <Typography variant="h6">{title}</Typography>
+        <Card>
+          <CardContent>
+            <Typography variant="h5">{title}</Typography>
+            <Typography variant="h6">{description}</Typography>
+          </CardContent>
+        </Card>
       </ListItem>
     );
   }  

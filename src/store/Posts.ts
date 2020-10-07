@@ -26,13 +26,13 @@ export const actionCreators = {
     requestPosts: (boardId: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
-        dispatch({ type: REQUEST_POSTS });
         if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
+            dispatch({ type: REQUEST_POSTS });
             fetch( BASE_URL + "boards/"+boardId+"/posts")            
-                .then(response => response.json() as Promise<Models.Post[]>)
-                .then(data => {
-                    dispatch({ type: RECEIVE_POSTS, posts: data });
-                });
+            .then(response => response.json() as Promise<Models.Post[]>)
+            .then(data => {
+                dispatch({ type: RECEIVE_POSTS, posts: data });
+            });
         }
     }
 };
@@ -44,7 +44,7 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
     if (state === undefined) {
         return unloadedState;
     }
-
+    
     switch (action.type) {
         case REQUEST_POSTS:
             return {                

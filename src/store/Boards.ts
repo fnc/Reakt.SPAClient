@@ -55,8 +55,7 @@ export const actionCreators = {
     setCurrentBoard: (board: Models.Board): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // TODO: only fetch board if it isn't current board. Should this be on Posts? 
         const appState = getState();        
-        if (appState && appState.boards && appState.boards.currentBoard && appState.boards.currentBoard.id !== board.id) {            
-            //const board = appState.boards?.boards.find((x) => {return x.id === requestedId});
+        if (appState && appState.boards && appState.boards.currentBoard && appState.boards.currentBoard.id !== board.id) {                        
             dispatch({ type: CHANGE_CURR_BOARD, currentBoard: board });
         }       
     }

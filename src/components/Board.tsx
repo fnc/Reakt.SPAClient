@@ -44,14 +44,13 @@ class Board extends React.PureComponent<BoardProps> {
     return (   
       <Container>
         <Typography variant="h3">Posts</Typography>                       
-          {(this.props.posts && this.props.posts.length > 0) ? (
-            <List>          
-              {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}                  
+          {(this.props.posts && this.props.posts.length > 0) ? (            
+            <List>              
+              {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}
             </List>                
-          ) :
-          (
-            <Typography variant="h6">No hay Posts!</Typography>
-          )}
+            ) :
+            (<Typography variant="h6">No hay Posts!</Typography>)            
+          }      
       </Container>
     );
   }

@@ -4,17 +4,19 @@ import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
-import Post from './Post';
+import { List, Container, Typography } from '@material-ui/core'
+import Post from './Post'
 
 // At runtime, Redux will merge together...
 type BoardProps =
-  { board: Models.Board }
+  { board: Models.Board }  
   & PostsStore.PostsState // ... state we've requested from the Redux store
   & typeof PostsStore.actionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 
-class Board extends React.PureComponent<BoardProps> {
+class Board extends React.PureComponent<BoardProps> {  
+
   // This method is called when the component is first added to the document
   public componentDidMount() {
     this.ensureDataFetched();
@@ -28,29 +30,29 @@ class Board extends React.PureComponent<BoardProps> {
   public render() {
     return (
       <React.Fragment>
-        <h2 id="tabelLabel">Posts</h2>
+        {/* <h2 id="tabelLabel">Posts</h2> */}
         {this.renderPostsTable()}
       </React.Fragment>
     );
   }
 
   private ensureDataFetched() {
-    this.props.requestPosts();
+    this.props.requestPosts(this.props.board.id);
   }
 
-  private renderPostsTable() {
-    return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.posts.map((post: Models.Post) => post.title)}
-        </tbody>
-      </table>
+  private renderPostsTable() {    
+    return (   
+      <Container>
+        <Typography variant="h3">Posts</Typography>                       
+          {(this.props.posts && this.props.posts.length > 0) ? (
+            <List>          
+              {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}                  
+            </List>                
+          ) :
+          (
+            <Typography variant="h6">No hay Posts!</Typography>
+          )}
+      </Container>
     );
   }
 
@@ -70,7 +72,7 @@ class Board extends React.PureComponent<BoardProps> {
 
 const mapStateToProps = 
 (state: ApplicationState) => ({
-  board: state.currentBoard,
+  board: state.boards ? state.boards.currentBoard : undefined,
   posts: state.posts?state.posts.posts:undefined,
   isLoading: state.posts?state.posts.isLoading:undefined,
 });

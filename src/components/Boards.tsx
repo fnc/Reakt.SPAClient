@@ -2,8 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
-import * as Models from '../models/Models';
+import * as Models from '../models/Models'
+import { Link as RouterLink } from 'react-router-dom';
 import * as BoardsStore from '../store/Boards'
+import { Card, CardContent, Typography, List, ListItem, Container, Link } from '@material-ui/core'
 
 // At runtime, Redux will merge together...
 type BoardsProps =
@@ -11,8 +13,8 @@ type BoardsProps =
   & typeof BoardsStore.actionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
+class Boards extends React.PureComponent<BoardsProps> {  
 
-class Boards extends React.PureComponent<BoardsProps> {
   // This method is called when the component is first added to the document
   public componentDidMount() {
     this.ensureDataFetched();
@@ -26,7 +28,6 @@ class Boards extends React.PureComponent<BoardsProps> {
   public render() {
     return (
       <React.Fragment>
-        <h1 id="tabelLabel">Boards</h1>        
         {this.renderBoardsTable()}        
       </React.Fragment>
     );
@@ -38,26 +39,33 @@ class Boards extends React.PureComponent<BoardsProps> {
 
   private renderBoardsTable() {
     return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th># Posts</th>            
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.boards.map((board: Models.Board, index: number) =>
-            <tr key={index}>
-              <td>{board.title}</td>
-              <td>{board.description}</td>
-              <td>{board.posts.length}</td>              
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <List>      
+        {this.props.boards.map((board: Models.Board) => 
+          <ListItem key={board.id}>
+            {this.displayBoardItem(board.id, board.title, board.description)}
+          </ListItem>
+        )}
+      </List>                 
     );
   }
+
+  private handleBoardClick(id: number) {              
+    let board = this.props.boards.find(b => b.id === id);
+    this.props.setCurrentBoard(board ? board : { id: 0, title: "", description: "", posts: [] });
+  }
+  
+  private displayBoardItem = (id: number, title: string, description: string) => { 
+    return (        
+      <Container>
+        <Card>
+          <CardContent>
+            <Link component={RouterLink} to='/board'  onClick={() => this.handleBoardClick(id)}><Typography variant="h4">{title}</Typography></Link>
+            <Typography variant="h6">{description}</Typography>          
+          </CardContent>
+        </Card>             
+      </Container>                            
+    )
+  }  
 
   // private renderPagination() {
   //   const prevStartDateIndex = (this.props.startDateIndex || 0) - 5;

@@ -3,5 +3,6 @@
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module"
-    }
+    },
+    "indent": [2]
 }

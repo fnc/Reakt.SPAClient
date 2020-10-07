@@ -23,17 +23,17 @@ type KnownAction = RequestPostsAction | ReceivePostAction;
 
 
 export const actionCreators = {
-    requestPosts: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    requestPosts: (id: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
         if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
-            fetch( BASE_URL + "boards/1/posts")            
+            dispatch({ type: REQUEST_POSTS });
+            // TODO: no hay una forma mas fachera de hacer esto? 
+            fetch( BASE_URL + "boards/" + id + "/posts")            
                 .then(response => response.json() as Promise<Models.Post[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_POSTS, posts: data });
                 });
-
-            dispatch({ type: REQUEST_POSTS });
         }
     }
 };

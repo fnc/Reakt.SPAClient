@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
-import { List, Container, Typography } from '@material-ui/core'
+import { Button, List, Container, Typography } from '@material-ui/core'
 import Post from './Post'
 
 // At runtime, Redux will merge together...
@@ -36,14 +36,15 @@ class Board extends React.PureComponent<BoardProps> {
     );
   }
 
-  private ensureDataFetched() {
+  private ensureDataFetched() {        
     this.props.requestPosts(this.props.board.id);
   }
 
   private renderPostsTable() {    
     return (   
       <Container>
-        <Typography variant="h3">Posts</Typography>                       
+        <Typography variant="h3">Posts</Typography>     
+        <Button>Create Post</Button>                  
           {(this.props.posts && this.props.posts.length > 0) ? (            
             <List>              
               {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}

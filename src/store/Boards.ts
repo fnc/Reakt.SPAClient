@@ -64,7 +64,7 @@ export const actionCreators = {
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
-const unloadedState: BoardsState = { boards: [], isLoading: false, currentBoard: { id: 0, title: "", description: "", posts:[] } };
+const unloadedState: BoardsState = { boards: [], isLoading: false, currentBoard: { id: 0, title: "", description: "" } };
 
 export const reducer: Reducer<BoardsState> = (state: BoardsState | undefined, action: KnownAction): BoardsState => {        
     if (state === undefined) {

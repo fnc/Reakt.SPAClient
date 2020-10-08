@@ -3,33 +3,40 @@ import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
-import { ListItem, Typography, Card, CardContent } from '@material-ui/core';
+import { ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
-  { post: Models.Post }
+  Models.Post
   & typeof PostsStore.actionCreators;
 
 // TODO: get the posts into the board props
-class Post extends React.PureComponent<PostProps> {
+class Post extends React.PureComponent<PostProps> {  
+
   public render() {    
     const d = new Date();
-    let id: number = 0;
+    let id: number = d.getTime();
     let title: string = "I'm a placeholder title";
     let description: string = "I'm a placeholder description"
-    if (this.props.post) {
-      id = this.props.post.id;
-      title = this.props.post.title;
-      description = this.props.post.description;
+    if (this.props) {
+      id = this.props.id;
+      title = this.props.title;
+      description = this.props.description;
     }    
     return (
+      //TODO: Add all comments to this, expand to accordion, [loading icon], create Post
       <ListItem key={id}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5">{title}</Typography>
-            <Typography variant="h6">{description}</Typography>
-          </CardContent>
-        </Card>
+        <Container>
+          <Card>
+            <CardContent>
+              <Typography variant="h5">{title}</Typography>
+              <Typography variant="h6">{description}</Typography>
+            </CardContent>
+            <CardActions>
+              <Button></Button>
+            </CardActions>
+          </Card>
+        </Container>
       </ListItem>
     );
   }  

@@ -7,6 +7,7 @@ import { BASE_URL } from '../constants/url';
 export interface PostsState {
     isLoading: boolean;    
     posts: Models.Post[];
+    boardId: number;
 }
 
 interface RequestPostsAction {
@@ -16,6 +17,7 @@ interface RequestPostsAction {
 interface ReceivePostAction {
     type: typeof RECEIVE_POSTS;    
     posts: Models.Post[];
+    boardId: number;
 }
 
 type KnownAction = RequestPostsAction | ReceivePostAction;
@@ -23,22 +25,22 @@ type KnownAction = RequestPostsAction | ReceivePostAction;
 
 
 export const actionCreators = {
-    requestPosts: (boardId: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    requestPosts: (boardRequest: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
-        if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
-            dispatch({ type: REQUEST_POSTS });
-            fetch( BASE_URL + "boards/"+boardId+"/posts")            
+        if (appState && appState.posts && appState.posts.boardId !== boardRequest && !appState.posts.isLoading) {
+            dispatch({ type: REQUEST_POSTS });            
+            fetch( BASE_URL + "boards/"+boardRequest+"/posts")            
             .then(response => response.json() as Promise<Models.Post[]>)
             .then(data => {
-                dispatch({ type: RECEIVE_POSTS, posts: data });
+                dispatch({ type: RECEIVE_POSTS, posts: data, boardId: boardRequest });
             });
         }
     }
 };
 
 
-const unloadedState: PostsState = { posts: [], isLoading: false };
+const unloadedState: PostsState = { posts: [], isLoading: false, boardId: 0 };
 
 export const reducer: Reducer<PostsState> = (state: PostsState | undefined, action: KnownAction): PostsState => {        
     if (state === undefined) {
@@ -49,12 +51,14 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
         case REQUEST_POSTS:
             return {                
                 posts: [],
-                isLoading: true
+                isLoading: true,
+                boardId: 0
             };
         case RECEIVE_POSTS:        
             return {                
                 posts: action.posts,
-                isLoading: false
+                isLoading: false,
+                boardId: action.boardId
             };                 
         default: 
             return state;

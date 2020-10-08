@@ -51,7 +51,7 @@ class Boards extends React.PureComponent<BoardsProps> {
 
   private handleBoardClick(id: number) {              
     let board = this.props.boards.find(b => b.id === id);
-    this.props.setCurrentBoard(board ? board : { id: 0, title: "", description: "", posts: [] });
+    this.props.setCurrentBoard(board ? board : { id: 0, title: "", description: ""});
   }
   
   private displayBoardItem = (id: number, title: string, description: string) => { 
@@ -85,3 +85,4 @@ export default connect(
   (state: ApplicationState) => state.boards, // Selects which state properties are merged into the component's props
   BoardsStore.actionCreators // Selects which action creators are merged into the component's props
 )(Boards as any);
+

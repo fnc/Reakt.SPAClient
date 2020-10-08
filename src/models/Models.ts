@@ -2,14 +2,14 @@ export interface Post {
     id: number;
     title: string;
     description: string;
-    createdAt: Date;  
+    createdAt: Date;      
+    likes: number;
 }
 
 export interface Board {    
     id: number;
     title: string;
-    description: string;
-    posts: number[];    
+    description: string;       
 }
 
 export interface Comment {    

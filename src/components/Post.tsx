@@ -47,7 +47,7 @@ class Post extends React.PureComponent<PostProps> {
                     return <Comment {...comment}/>
                   }
                   else {
-                    return <Comment {...comment}>
+                    return <Comment {...comment}/>
                   }
                 })}
               </Container>

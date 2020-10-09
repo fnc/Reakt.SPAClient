@@ -16,5 +16,6 @@ export interface Comment {
     id: number;
     likes: number;
     message: string;
-    parentId: number;    
+    createdAt: Date;
+    parent: Comment;
 }

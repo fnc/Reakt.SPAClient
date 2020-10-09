@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Container, List, ListItem, Typography } from '@material-ui/core';
+import { Button, Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
 
 // At runtime, Redux will merge together...
@@ -17,6 +17,7 @@ class Comment extends React.PureComponent<CommentsProps> {
     return (
       <Container>       
         <Typography variant="h6">{this.props.message}</Typography>                 
+        <Button>Reply</Button>        
         {this.renderChildren()}
       </Container>
     );
@@ -25,7 +26,7 @@ class Comment extends React.PureComponent<CommentsProps> {
     return (
       <Container>
         <List>
-          {/* Should the parent actually have a list of its children? */}        
+          {/* Should the parent actually have a list of its children? */}             
           {this.props.comments.map((comment: Models.Comment) => {                    
             if (comment.parent && comment.parent.id === this.props.id) {
               return (
@@ -39,7 +40,10 @@ class Comment extends React.PureComponent<CommentsProps> {
                             addComment={this.props.addComment} 
                             {...comment}/>
               </ListItem>              
-              )}              
+              )}
+              else {
+                return <p></p>
+              } 
           })}         
         </List>
       </Container>

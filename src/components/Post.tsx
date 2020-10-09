@@ -46,6 +46,9 @@ class Post extends React.PureComponent<PostProps> {
                   if (!comment.parent) {
                     return <Comment {...comment}/>
                   }
+                  else {
+                    return <Comment {...comment}>
+                  }
                 })}
               </Container>
             </CardContent>

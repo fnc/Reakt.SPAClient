@@ -39,18 +39,16 @@ class Post extends React.PureComponent<PostProps> {
           <Card>
             <CardContent>
               <Typography variant="h5">{title}</Typography>
-              <Typography variant="h6">{description}</Typography>
-              <Container>
-                <Typography variant="h6">Comments</Typography>
+              <Typography variant="h6">{description}</Typography>              
+              <Typography variant="h6">Comments</Typography>              
                 {this.props.comments.map((comment : Models.Comment) => {
                   if (!comment.parent) {
                     return <Comment {...comment}/>
                   }
                   else {
-                    return <Comment {...comment}/>
+                    return <h2>There are no comments!</h2>
                   }
-                })}
-              </Container>
+                })}              
             </CardContent>
             <CardActions>
               <Button></Button>

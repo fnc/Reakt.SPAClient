@@ -52,7 +52,7 @@ export const actionCreators = {
     },
     addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
-        const appState = getState();
+        //const appState = getState();
         // TODO: Add validation here
         //if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
         if (true) {

@@ -11,13 +11,13 @@ type CommentsProps =
   & CommentsStore.CommentsState
   & typeof CommentsStore.actionCreators;
 
-
-class Comment extends React.PureComponent<CommentsProps> {    
+class Comment extends React.PureComponent<CommentsProps> {         
   public render() {        
     return (
       <Container>       
         <Typography variant="h6">{this.props.message}</Typography>                 
-        <Button>Reply</Button>        
+        <Button onClick={this.handleTextClick}>Reply to this MF</Button>                             
+        {this.props && this.props.showTextBox && <ReplyTextBox />}
         {this.renderChildren()}
       </Container>
     );
@@ -38,6 +38,7 @@ class Comment extends React.PureComponent<CommentsProps> {
                             comments={this.props.comments} 
                             requestComments={this.props.requestComments} 
                             addComment={this.props.addComment} 
+                            toggleTextBox={this.props.toggleTextBox}
                             {...comment}/>
               </ListItem>              
               )}
@@ -49,14 +50,23 @@ class Comment extends React.PureComponent<CommentsProps> {
       </Container>
     )
   }
+  
+  private handleTextClick = () => {    
+    this.props.toggleTextBox(this.props.id);    
+  }
 }
+
+const ReplyTextBox = () => (
+  <Typography variant="h6">I'm a toggable future textBox!</Typography>
+)
+
 
 const mapStateToProps = 
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
   posts: state.posts?state.posts.posts:undefined,
   comments: state.comments?state.comments.comments:undefined,
-  isLoading: state.posts?state.posts.isLoading:undefined,
+  isLoading: state.posts?state.posts.isLoading:undefined,      
 });
 
 export default connect(

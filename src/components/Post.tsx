@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as CommentsStore from '../store/Comments'
-import Comment from './Comments'
+import Comment from './Comment'
 import { ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
@@ -44,9 +44,8 @@ class Post extends React.PureComponent<PostProps> {
                 {this.props.comments.map((comment : Models.Comment) => {
                   if (!comment.parent) {
                     return <Comment {...comment}/>
-                  }
-                  else {
-                    return <h2>There are no comments!</h2>
+                  } else {
+                    return (null)
                   }
                 })}              
             </CardContent>

@@ -18,4 +18,5 @@ export interface Comment {
     message: string;
     createdAt: Date;
     parent: Comment;
+    showTextBox: boolean;
 }

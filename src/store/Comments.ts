@@ -1,7 +1,7 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
-import { REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT } from '../constants/action-types';
+import { REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT, TOGGLE_COMMENT_TEXTBOX } from '../constants/action-types';
 import { BASE_URL } from '../constants/url';
 import * as HttpClient from '../services/HttpClient';
 
@@ -31,9 +31,12 @@ interface addedCommentAction {
     postId: number;
 }
 
-type KnownAction = RequestCommentsAction | ReceiveCommentsAction | addCommentAction | addedCommentAction;
+interface toggleCommentTextbox {
+    type: typeof TOGGLE_COMMENT_TEXTBOX;
+    commentId: number;
+}
 
-
+type KnownAction = RequestCommentsAction | ReceiveCommentsAction | addCommentAction | addedCommentAction | toggleCommentTextbox;
 
 export const actionCreators = {
     requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {        
@@ -63,6 +66,9 @@ export const actionCreators = {
                     dispatch({ type: ADDED_COMMENT, comment: data, postId: requestedPostId });
                 });
         }
+    },
+    toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
+        dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });
     }
 };
 
@@ -82,12 +88,31 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
                 postId: 0,
             };
         case RECEIVE_COMMENTS:
+            // TODO: this should be on default somewhere else; expects a return 
+            action.comments.map((c) => {c.showTextBox = false; return null;});
             return {
                 comments: action.comments,
                 isLoading: false,
                 postId: action.postId,
             };
+        case TOGGLE_COMMENT_TEXTBOX:                   
+            return {
+                comments: toggleCommentFunc(state.comments, action),
+                isLoading: false,
+                postId: state.postId,
+            }
         default:
             return state;
     };
 };
+
+const toggleCommentFunc = (comments :Models.Comment[], action: toggleCommentTextbox) => {    
+    let commentsCopy = comments.slice();
+    commentsCopy.map((c) => {
+        if (c.id === action.commentId) {
+            c.showTextBox = !c.showTextBox;
+        } 
+        return (null);        
+    });
+    return commentsCopy;
+}

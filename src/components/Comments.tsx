@@ -33,6 +33,7 @@ class Comment extends React.PureComponent<CommentsProps> {
                 <ListItem key={comment.id}>
                   <Comment 
                   // TODO: Solve this
+                            isPostingComment = {this.props.isPostingComment}
                             isLoading={this.props.isLoading} 
                             postId={comment.id} 
                             comments={this.props.comments} 

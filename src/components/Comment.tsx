@@ -2,7 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Button, Container, List, ListItem, Typography } from '@material-ui/core';
+import { Button, Container, List, ListItem, Typography, Icon } from '@material-ui/core';
+import ReplyTextBox from './ReplyTextBox'
 import * as CommentsStore from '../store/Comments';
 
 // At runtime, Redux will merge together...
@@ -17,7 +18,7 @@ class Comment extends React.PureComponent<CommentsProps> {
       <Container>       
         <Typography variant="h6">{this.props.message}</Typography>                 
         <Button onClick={this.handleTextClick}>Reply to this MF</Button>                             
-        {this.props && this.props.showTextBox && <ReplyTextBox />}
+        {this.props && this.props.showTextBox && this.renderReplyBox()}
         {this.renderChildren()}
       </Container>
     );
@@ -54,11 +55,17 @@ class Comment extends React.PureComponent<CommentsProps> {
   private handleTextClick = () => {    
     this.props.toggleTextBox(this.props.id);    
   }
-}
 
-const ReplyTextBox = () => (
-  <Typography variant="h6">I'm a toggable future textBox!</Typography>
-)
+  private renderReplyBox = () => {
+    return (
+      <React.Fragment>
+        <ReplyTextBox />
+        <Button onClick={this.props.addComment} color="secondary" startIcon={<Icon>send</Icon>}>Reply!</Button>
+      </React.Fragment>
+    )
+  }
+  
+}
 
 
 const mapStateToProps = 

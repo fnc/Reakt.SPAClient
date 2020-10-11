@@ -17,6 +17,6 @@ export interface Comment {
     likes: number;
     message: string;
     createdAt: Date;
-    parent: Comment;
+    parent: Comment | undefined;
     showTextBox: boolean;
 }

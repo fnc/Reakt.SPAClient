@@ -53,19 +53,22 @@ export const actionCreators = {
                 });
         }
     },
-    addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        // Only load data if it's something we don't already have (and are not already loading)
-        //const appState = getState();
-        // TODO: Add validation here
-        //if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
-        if (true) {
-            dispatch({ type: REQUEST_ADD_COMMENT, comment: comment });
-            HttpClient.post(BASE_URL + "posts/" + requestedPostId + "/comments", comment)
-                .then(response => response.json() as Promise<Models.Comment>)
-                .then(data => {
-                    dispatch({ type: ADDED_COMMENT, comment: data, postId: requestedPostId });
-                });
-        }
+    // addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    //     // Only load data if it's something we don't already have (and are not already loading)
+    //     //const appState = getState();
+    //     // TODO: Add validation here
+    //     //if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
+    //     if (true) {
+    //         dispatch({ type: REQUEST_ADD_COMMENT, comment: comment });
+    //         HttpClient.post(BASE_URL + "posts/" + requestedPostId + "/comments", comment)
+    //             .then(response => response.json() as Promise<Models.Comment>)
+    //             .then(data => {
+    //                 dispatch({ type: ADDED_COMMENT, comment: data, postId: requestedPostId });
+    //             });
+    //     }
+    // },
+    addComment: (): AppThunkAction<KnownAction> => (dispatch) => {
+        dispatch({ type: REQUEST_ADD_COMMENT, comment: { id: 0, likes: 0, message: "", createdAt: new Date("12/01/2020"), parent: undefined, showTextBox: false } })
     },
     toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
         dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });

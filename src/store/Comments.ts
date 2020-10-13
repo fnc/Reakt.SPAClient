@@ -1,7 +1,8 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
-import { REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT } from '../constants/action-types';
+import * as ApiModels from '../services/ApiModels';
+import { ADDED_REPLY, REQUEST_ADD_REPLY ,REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT, TOGGLE_COMMENT_TEXTBOX } from '../constants/action-types';
 import { BASE_URL } from '../constants/url';
 import * as HttpClient from '../services/HttpClient';
 
@@ -22,19 +23,32 @@ interface ReceiveCommentsAction {
     postId: number;
 }
 
-interface addCommentAction {
+interface AddCommentAction {
     type: typeof REQUEST_ADD_COMMENT;
     comment: Models.Comment;
 }
-interface addedCommentAction {
+interface AddedCommentAction {
     type: typeof ADDED_COMMENT;
     comment: Models.Comment;
     postId: number;
 }
 
-type KnownAction = RequestCommentsAction | ReceiveCommentsAction | addCommentAction | addedCommentAction;
+interface ToggleCommentTextboxAction {
+    type: typeof TOGGLE_COMMENT_TEXTBOX;
+    commentId: number;
+}
 
+interface RequestAddReplyAction {
+    type: typeof REQUEST_ADD_REPLY,    
+}
 
+interface AddedReplyAction {
+    type: typeof ADDED_REPLY,
+    reply: Models.Comment,
+    commentParentId: number,
+}
+
+type KnownAction = RequestCommentsAction | ReceiveCommentsAction | AddCommentAction | AddedCommentAction | ToggleCommentTextboxAction | RequestAddReplyAction | AddedReplyAction;
 
 export const actionCreators = {
     requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -50,6 +64,21 @@ export const actionCreators = {
                     dispatch({ type: RECEIVE_COMMENTS, comments: data, postId: requestedPostId });
                 });
         }
+    },
+    addReply: (commentParentId: number, reply: ApiModels.Reply): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (appState.comments && !appState.comments.isLoading) {
+            dispatch({ type: REQUEST_ADD_REPLY });
+            HttpClient.post(`${BASE_URL}comments/${commentParentId}/replies`, reply)
+                .then(response => response.json() as Promise<Models.Comment>)
+                .then(data => {
+                    dispatch({ type: ADDED_REPLY, reply: data, commentParentId })
+                })
+                .catch((error) => {console.error('Error:', error)});
+        }
+    },
+    toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
+        dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });
     },
     addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
         HttpClient.post(`${BASE_URL}posts/${requestedPostId}/comments`, comment)
@@ -78,6 +107,8 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
                 postId: 0
             };
         case RECEIVE_COMMENTS:
+            // TODO: this should be on default somewhere else; expects a return 
+            action.comments.map((c) => {c.showTextBox = false; return null;});
             return {
                 comments: action.comments,
                 isLoading: false,
@@ -98,7 +129,48 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
                 isPostingComment: false,
                 postId: state.postId
             };
+        case REQUEST_ADD_REPLY: 
+            return {
+                comments: state.comments,
+                isLoading: true,
+                postId: state.postId,
+                isPostingComment: false,
+            }
+        case ADDED_REPLY: 
+            return {
+                comments: addReplyFunc(state.comments, action),
+                isLoading: false,
+                postId: state.postId,
+                isPostingComment: false,
+            }    
+        case TOGGLE_COMMENT_TEXTBOX:                   
+            return {
+                comments: toggleCommentFunc(state.comments, action),
+                isLoading: false,
+                postId: state.postId,
+                isPostingComment: false,
+            }
         default:
             return state;
     };
 };
+
+const toggleCommentFunc = (comments: Models.Comment[], action: ToggleCommentTextboxAction) => {    
+    let commentsCopy = comments.slice();
+    commentsCopy.forEach(c => {
+        if(c.id === action.commentId) {
+            c.showTextBox = !c.showTextBox;
+        }
+    })    
+    return commentsCopy;
+}
+
+const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {    
+    let commentsCopy = comments.slice();        
+    commentsCopy.forEach(c => {
+        if (c.id === action.commentParentId) {
+            c.replies.push(action.reply);
+        }  
+    })
+    return commentsCopy;
+}

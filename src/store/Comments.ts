@@ -25,7 +25,7 @@ interface ReceiveCommentsAction {
 
 interface AddCommentAction {
     type: typeof REQUEST_ADD_COMMENT;
-    comment: Models.Comment;
+    comment: ApiModels.NewComment;
 }
 interface AddedCommentAction {
     type: typeof ADDED_COMMENT;
@@ -81,7 +81,7 @@ export const actionCreators = {
     toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
         dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });
     },
-    addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    addComment: (requestedPostId: number, comment: ApiModels.NewComment): AppThunkAction<KnownAction> => (dispatch, getState) => {
         HttpClient.post(`${BASE_URL}posts/${requestedPostId}/comments`, comment)
             .then(response => response.json() as Promise<Models.Comment>)
             .then(data => {

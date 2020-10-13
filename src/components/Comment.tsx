@@ -2,8 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Button, Container, List, ListItem, Typography, Icon } from '@material-ui/core';
-import ReplyTextBox from './ReplyTextBox'
+import { Input, Button, Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
 
 // At runtime, Redux will merge together...
@@ -13,6 +12,12 @@ type CommentsProps =
   & typeof CommentsStore.actionCreators;
 
 class Comment extends React.PureComponent<CommentsProps> {         
+  constructor(props: CommentsProps) {
+    super(props)
+    this.state= {
+      commentReply: "",
+    }
+  }
   public render() {        
     return (
       <Container>       
@@ -56,15 +61,26 @@ class Comment extends React.PureComponent<CommentsProps> {
     this.props.toggleTextBox(this.props.id);    
   }
 
-  private renderReplyBox = () => {
-    return (
-      <React.Fragment>
-        <ReplyTextBox />
-        <Button onClick={this.props.addComment} color="secondary" startIcon={<Icon>send</Icon>}>Reply!</Button>
-      </React.Fragment>
-    )
+  private handleReplySubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    const newComment = { parent: this, likes: 0, message: this.state.commentReply, createdAt: Date.toString(), id: 0, showTextBox: false }
+    this.props.addComment(this.props.postId, newComment);
   }
   
+  private handleReplyChange = (value : string) => {        
+    this.setState({
+      commentReply: value      
+    })
+  }
+
+  private renderReplyBox = () => {
+    return (      
+      <form>
+        <Input defaultValue="please reply here!" onChange={e => this.handleReplyChange(e.target.value)} required={true}></Input>
+        <Button color="secondary" onClick={this.handleReplySubmit}>Reply!</Button>
+      </form>      
+    )
+  }  
 }
 
 

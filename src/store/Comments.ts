@@ -8,6 +8,7 @@ import * as HttpClient from '../services/HttpClient';
 
 export interface CommentsState {
     isLoading: boolean;
+    isPostingComment: boolean;
     comments: Models.Comment[];
     postId: number;
 }
@@ -50,33 +51,18 @@ interface AddedReplyAction {
 type KnownAction = RequestCommentsAction | ReceiveCommentsAction | AddCommentAction | AddedCommentAction | ToggleCommentTextboxAction | RequestAddReplyAction | AddedReplyAction;
 
 export const actionCreators = {
-    requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {        
+    requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
-        let filters = new Map<string,string>();
-        if(startRange){filters.set("startRange",startRange.toString());}
-        if(endRange){filters.set("endRange",endRange.toString());}
+        let filters = new Map<string, string>();
+        if (startRange) { filters.set("startRange", startRange.toString()); }
+        if (endRange) { filters.set("endRange", endRange.toString()); }
         if (appState && appState.comments && appState.comments.postId !== requestedPostId && !appState.comments.isLoading) {
             dispatch({ type: REQUEST_COMMENTS });
-            HttpClient.get(BASE_URL + "posts/" + requestedPostId + "/comments",filters)
+            HttpClient.get(`${BASE_URL}posts/${requestedPostId}/comments`, filters)
                 .then(response => response.json() as Promise<Models.Comment[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_COMMENTS, comments: data, postId: requestedPostId });
                 });
-        }
-    },
-    addComment: (postId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        // Only load data if it's something we don't already have (and are not already loading)
-        const appState = getState();
-        // TODO: Add validation here
-        //if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
-        if (appState.comments && !appState.comments.isLoading) {
-            dispatch({ type: REQUEST_ADD_COMMENT, comment });
-            HttpClient.post(BASE_URL + "posts/" + postId + "/comments", comment)
-                .then(response => response.json() as Promise<Models.Comment>)
-                .then(data => {
-                    dispatch({ type: ADDED_COMMENT, comment: data, postId });
-                })
-                .catch((error) => {console.error('Error:', error)});
         }
     },
     addReply: (commentParentId: number, reply: ApiModels.Reply): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -93,11 +79,19 @@ export const actionCreators = {
     },
     toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
         dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });
+    },
+    addComment: (requestedPostId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        HttpClient.post(`${BASE_URL}posts/${requestedPostId}/comments`, comment)
+            .then(response => response.json() as Promise<Models.Comment>)
+            .then(data => {
+                dispatch({ type: ADDED_COMMENT, comment: data, postId: requestedPostId });
+            });
+        dispatch({ type: REQUEST_ADD_COMMENT, comment: comment });
     }
 };
 
 
-const unloadedState: CommentsState = { comments: [], isLoading: false, postId: 0 };
+const unloadedState: CommentsState = { comments: [], isPostingComment: false, isLoading: false, postId: 0 };
 
 export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined, action: KnownAction): CommentsState => {
     if (state === undefined) {
@@ -109,7 +103,8 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
             return {
                 comments: [],
                 isLoading: true,
-                postId: 0,
+                isPostingComment: state.isPostingComment,
+                postId: 0
             };
         case RECEIVE_COMMENTS:
             // TODO: this should be on default somewhere else; expects a return 
@@ -117,25 +112,43 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
             return {
                 comments: action.comments,
                 isLoading: false,
-                postId: action.postId,
+                isPostingComment: state.isPostingComment,
+                postId: action.postId
+            };
+        case REQUEST_ADD_COMMENT:
+            return {
+                comments: state.comments,
+                isLoading: state.isLoading,
+                isPostingComment: true,
+                postId: state.postId
+            };
+        case ADDED_COMMENT:
+            return {
+                comments: [...state.comments,action.comment],
+                isLoading: state.isLoading,
+                isPostingComment: false,
+                postId: state.postId
             };
         case REQUEST_ADD_REPLY: 
             return {
                 comments: state.comments,
                 isLoading: true,
                 postId: state.postId,
+                isPostingComment: false,
             }
         case ADDED_REPLY: 
             return {
                 comments: addReplyFunc(state.comments, action),
                 isLoading: false,
-                postId: state.postId
+                postId: state.postId,
+                isPostingComment: false,
             }    
         case TOGGLE_COMMENT_TEXTBOX:                   
             return {
                 comments: toggleCommentFunc(state.comments, action),
                 isLoading: false,
                 postId: state.postId,
+                isPostingComment: false,
             }
         default:
             return state;

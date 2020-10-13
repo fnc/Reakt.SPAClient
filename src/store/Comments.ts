@@ -157,20 +157,20 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
 
 const toggleCommentFunc = (comments: Models.Comment[], action: ToggleCommentTextboxAction) => {    
     let commentsCopy = comments.slice();
-    commentsCopy.map((c): void => {
-        if (c.id === action.commentId) {
+    commentsCopy.forEach(c => {
+        if(c.id === action.commentId) {
             c.showTextBox = !c.showTextBox;
-        }         
-    });
+        }
+    })    
     return commentsCopy;
 }
 
 const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {    
-    let commentsCopy = comments.slice();    
-    commentsCopy.map((c): void => {
+    let commentsCopy = comments.slice();        
+    commentsCopy.forEach(c => {
         if (c.id === action.commentParentId) {
             c.replies.push(action.reply);
-        }        
-    })    
+        }  
+    })
     return commentsCopy;
 }

@@ -11,9 +11,14 @@ type CommentsProps =
   & CommentsStore.CommentsState
   & typeof CommentsStore.actionCreators;
 
-class Comment extends React.PureComponent<CommentsProps> {         
+interface IState 
+  {
+    commentReply: string,
+  }
+
+class Comment extends React.PureComponent<CommentsProps, IState> {         
   constructor(props: CommentsProps) {
-    super(props)
+    super(props)    
     this.state= {
       commentReply: "",
     }
@@ -24,33 +29,29 @@ class Comment extends React.PureComponent<CommentsProps> {
         <Typography variant="h6">{this.props.message}</Typography>                 
         <Button onClick={this.handleTextClick}>Reply to this MF</Button>                             
         {this.props && this.props.showTextBox && this.renderReplyBox()}
-        {this.renderChildren()}
+        {this.props.replies && this.renderChildren()}
       </Container>
     );
   }  
   private renderChildren() {
-    return (
+    return (      
       <Container>
-        <List>
-          {/* Should the parent actually have a list of its children? */}             
-          {this.props.comments.map((comment: Models.Comment) => {                    
-            if (comment.parent && comment.parent.id === this.props.id) {
-              return (
-                <ListItem key={comment.id}>
-                  <Comment 
-                  // TODO: Solve this
-                            isLoading={this.props.isLoading} 
-                            postId={comment.id} 
-                            comments={this.props.comments} 
-                            requestComments={this.props.requestComments} 
-                            addComment={this.props.addComment} 
-                            toggleTextBox={this.props.toggleTextBox}
-                            {...comment}/>
+        <List>                   
+          {this.props.replies.map((comment: Models.Comment) => {                                
+            return (
+              <ListItem key={comment.id}>
+                <Comment 
+                // TODO: refactor this
+                          isLoading={this.props.isLoading} 
+                          postId={this.props.postId} 
+                          comments={this.props.comments} 
+                          requestComments={this.props.requestComments} 
+                          addComment={this.props.addComment} 
+                          toggleTextBox={this.props.toggleTextBox}
+                          addReply={this.props.addReply}
+                          {...comment}/>
               </ListItem>              
-              )}
-              else {
-                return <p></p>
-              } 
+            )
           })}         
         </List>
       </Container>
@@ -62,9 +63,9 @@ class Comment extends React.PureComponent<CommentsProps> {
   }
 
   private handleReplySubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    const newComment = { parent: this, likes: 0, message: this.state.commentReply, createdAt: Date.toString(), id: 0, showTextBox: false }
-    this.props.addComment(this.props.postId, newComment);
+    e.preventDefault();    
+    const reply = { message: this.state.commentReply, likes: 0 }
+    this.props.addReply(this.props.id, reply);
   }
   
   private handleReplyChange = (value : string) => {        
@@ -87,9 +88,9 @@ class Comment extends React.PureComponent<CommentsProps> {
 const mapStateToProps = 
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
-  posts: state.posts?state.posts.posts:undefined,
-  comments: state.comments?state.comments.comments:undefined,
-  isLoading: state.posts?state.posts.isLoading:undefined,      
+  posts: state.posts ? state.posts.posts: undefined,
+  comments: state.comments ? state.comments.comments: undefined,
+  isLoading: state.posts ? state.posts.isLoading: undefined,      
 });
 
 export default connect(

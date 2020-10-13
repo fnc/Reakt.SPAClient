@@ -10,7 +10,13 @@ export function post(url: string, payload: any): Promise<Response> {
     return fetch(url,
         {
             method: 'POST',
-            body: payload
+            body: JSON.stringify(payload),            
+            //mode: 'no-cors',
+            headers: {
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'localhost:3000',
+                'Content-Type': 'application/json',
+              },            
         });
 }
 

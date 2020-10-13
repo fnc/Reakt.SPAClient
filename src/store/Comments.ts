@@ -1,7 +1,8 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
-import { REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT, TOGGLE_COMMENT_TEXTBOX } from '../constants/action-types';
+import * as ApiModels from '../services/ApiModels';
+import { ADDED_REPLY, REQUEST_ADD_REPLY ,REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT, TOGGLE_COMMENT_TEXTBOX } from '../constants/action-types';
 import { BASE_URL } from '../constants/url';
 import * as HttpClient from '../services/HttpClient';
 
@@ -21,22 +22,32 @@ interface ReceiveCommentsAction {
     postId: number;
 }
 
-interface addCommentAction {
+interface AddCommentAction {
     type: typeof REQUEST_ADD_COMMENT;
     comment: Models.Comment;
 }
-interface addedCommentAction {
+interface AddedCommentAction {
     type: typeof ADDED_COMMENT;
     comment: Models.Comment;
     postId: number;
 }
 
-interface toggleCommentTextbox {
+interface ToggleCommentTextboxAction {
     type: typeof TOGGLE_COMMENT_TEXTBOX;
     commentId: number;
 }
 
-type KnownAction = RequestCommentsAction | ReceiveCommentsAction | addCommentAction | addedCommentAction | toggleCommentTextbox;
+interface RequestAddReplyAction {
+    type: typeof REQUEST_ADD_REPLY,    
+}
+
+interface AddedReplyAction {
+    type: typeof ADDED_REPLY,
+    reply: Models.Comment,
+    commentParentId: number,
+}
+
+type KnownAction = RequestCommentsAction | ReceiveCommentsAction | AddCommentAction | AddedCommentAction | ToggleCommentTextboxAction | RequestAddReplyAction | AddedReplyAction;
 
 export const actionCreators = {
     requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {        
@@ -55,18 +66,31 @@ export const actionCreators = {
     },
     addComment: (postId: number, comment: Models.Comment): AppThunkAction<KnownAction> => (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
-        //const appState = getState();
+        const appState = getState();
         // TODO: Add validation here
         //if (appState && appState.posts && appState.posts.posts.length === 0 && !appState.posts.isLoading) {
-        if (true) {
-            dispatch({ type: REQUEST_ADD_COMMENT, comment: comment });
+        if (appState.comments && !appState.comments.isLoading) {
+            dispatch({ type: REQUEST_ADD_COMMENT, comment });
             HttpClient.post(BASE_URL + "posts/" + postId + "/comments", comment)
                 .then(response => response.json() as Promise<Models.Comment>)
                 .then(data => {
                     dispatch({ type: ADDED_COMMENT, comment: data, postId });
-                });
+                })
+                .catch((error) => {console.error('Error:', error)});
         }
-    },    
+    },
+    addReply: (commentParentId: number, reply: ApiModels.Reply): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (appState.comments && !appState.comments.isLoading) {
+            dispatch({ type: REQUEST_ADD_REPLY });
+            HttpClient.post(`${BASE_URL}comments/${commentParentId}/replies`, reply)
+                .then(response => response.json() as Promise<Models.Comment>)
+                .then(data => {
+                    dispatch({ type: ADDED_REPLY, reply: data, commentParentId })
+                })
+                .catch((error) => {console.error('Error:', error)});
+        }
+    },
     toggleTextBox: (commentId: number) : AppThunkAction<KnownAction> => (dispatch) => {
         dispatch({ type: TOGGLE_COMMENT_TEXTBOX, commentId });
     }
@@ -95,6 +119,18 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
                 isLoading: false,
                 postId: action.postId,
             };
+        case REQUEST_ADD_REPLY: 
+            return {
+                comments: state.comments,
+                isLoading: true,
+                postId: state.postId,
+            }
+        case ADDED_REPLY: 
+            return {
+                comments: addReplyFunc(state.comments, action),
+                isLoading: false,
+                postId: state.postId
+            }    
         case TOGGLE_COMMENT_TEXTBOX:                   
             return {
                 comments: toggleCommentFunc(state.comments, action),
@@ -106,7 +142,7 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
     };
 };
 
-const toggleCommentFunc = (comments :Models.Comment[], action: toggleCommentTextbox) => {    
+const toggleCommentFunc = (comments: Models.Comment[], action: ToggleCommentTextboxAction) => {    
     let commentsCopy = comments.slice();
     commentsCopy.map((c) => {
         if (c.id === action.commentId) {
@@ -114,5 +150,15 @@ const toggleCommentFunc = (comments :Models.Comment[], action: toggleCommentText
         } 
         return (null);        
     });
+    return commentsCopy;
+}
+
+const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {    
+    let commentsCopy = comments.slice();    
+    commentsCopy.map((c) => {
+        if (c.id === action.commentParentId) {
+            c.replies.push(action.reply);
+        }
+    })    
     return commentsCopy;
 }

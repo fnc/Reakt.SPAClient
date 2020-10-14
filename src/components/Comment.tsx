@@ -2,8 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Input, Button, Container, List, ListItem, Typography } from '@material-ui/core';
+import { Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
+import ReplyBox from './ReplyBox';
 
 // At runtime, Redux will merge together...
 type CommentsProps =
@@ -27,8 +28,7 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
     return (
       <Container>       
         <Typography variant="h6">{this.props.message}</Typography>                 
-        <Button onClick={this.handleTextClick}>Reply to this MF</Button>                             
-        {this.props && this.props.showTextBox && this.renderReplyBox()}
+        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary"></ReplyBox>
         {this.props.replies && this.renderChildren()}
       </Container>
     );
@@ -47,8 +47,7 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
                           postId={this.props.postId} 
                           comments={this.props.comments} 
                           requestComments={this.props.requestComments} 
-                          addComment={this.props.addComment} 
-                          toggleTextBox={this.props.toggleTextBox}
+                          addComment={this.props.addComment}                           
                           addReply={this.props.addReply}
                           {...comment}/>
               </ListItem>              
@@ -57,31 +56,11 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
         </List>
       </Container>
     )
-  }
-  
-  private handleTextClick = () => {    
-    this.props.toggleTextBox(this.props.id);    
-  }
+  } 
 
-  private handleReplySubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();    
-    const reply = { message: this.state.commentReply, likes: 0 }
+  private handleReplySubmit = (message: string) => {    
+    const reply = { message, likes: 0 }
     this.props.addReply(this.props.id, reply);
-  }
-  
-  private handleReplyChange = (value : string) => {        
-    this.setState({
-      commentReply: value      
-    })
-  }
-
-  private renderReplyBox = () => {
-    return (      
-      <form>
-        <Input defaultValue="please reply here!" onChange={e => this.handleReplyChange(e.target.value)} required={true}></Input>
-        <Button color="secondary" onClick={this.handleReplySubmit}>Reply!</Button>
-      </form>      
-    )
   }  
 }
 

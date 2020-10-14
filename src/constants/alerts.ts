@@ -1,0 +1,1 @@
+export const EMPTY_COMMENT_ALERT = "Cannot submit an empty comment!";

@@ -2,8 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import * as CommentsStore from '../store/Comments'
-import Comment from './Comment'
+import * as CommentsStore from '../store/Comments';
+import Comment from './Comment';
+import ReplyBox from './ReplyBox';
 import { ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
@@ -12,8 +13,20 @@ type PostProps =
   & CommentsStore.CommentsState
   & typeof CommentsStore.actionCreators;
 
+interface IPostState {
+  showReplyBox: boolean;
+  newCommentMessage: string;
+}
+
 // TODO: get the posts into the board props
-class Post extends React.PureComponent<PostProps> {    
+class Post extends React.PureComponent<PostProps, IPostState> {    
+  constructor(props: PostProps) {
+    super(props);
+    this.state={
+      newCommentMessage: "",
+      showReplyBox: false,
+    }
+  }
   public componentDidMount() {
     this.ensureDataFetched();
   }
@@ -21,6 +34,11 @@ class Post extends React.PureComponent<PostProps> {
   private ensureDataFetched() {
     this.props.requestComments(this.props.id);
   }
+
+  private handleReplySubmit = (message: string) => {    
+    const comment = { message, likes: 0 }
+    this.props.addComment(this.props.id, comment)
+  }  
 
   public render() {    
     const d = new Date();
@@ -39,7 +57,10 @@ class Post extends React.PureComponent<PostProps> {
           <Card>
             <CardContent>
               <Typography variant="h5">{title}</Typography>
-              <Typography variant="h6">{description}</Typography>              
+              <Typography variant="h6">{description}</Typography>   
+              <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>
+              {/* <Button onClick={this.handleTextClick} color="primary">Create Top Comment</Button>                 
+              {this.state.showReplyBox && this.renderReplyBox()} */}
               <Typography variant="h6">Comments</Typography>              
                 {this.props.comments.map((comment : Models.Comment) => {                  
                   return <Comment {...comment}/>                  

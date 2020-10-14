@@ -20,4 +20,5 @@ export interface Comment {
     showTextBox: boolean;
     replies: Comment[];
     replyCount: number;
+    isLoadingReplies: boolean;
 }

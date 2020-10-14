@@ -5,3 +5,4 @@ TODO: Do this
 - Add "Show replies button & state handling" on top comments with children
 - Polish app
 - Add validations on Comment action creators
+- Make posts like accordion

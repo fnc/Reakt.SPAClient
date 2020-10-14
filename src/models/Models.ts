@@ -16,8 +16,7 @@ export interface Comment {
     id: number;
     likes: number;
     message: string;
-    createdAt: Date;    
-    showTextBox: boolean;
+    createdAt: Date;        
     replies: Comment[];
     replyCount: number;
 }

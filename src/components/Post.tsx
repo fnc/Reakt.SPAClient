@@ -2,9 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import * as CommentsStore from '../store/Comments'
-import Comment from './Comment'
-import { Input, ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
+import * as CommentsStore from '../store/Comments';
+import Comment from './Comment';
+import ReplyBox from './ReplyBox';
+import { ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
@@ -16,7 +17,6 @@ interface IPostState {
   showReplyBox: boolean;
   newCommentMessage: string;
 }
-
 
 // TODO: get the posts into the board props
 class Post extends React.PureComponent<PostProps, IPostState> {    
@@ -35,41 +35,10 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.props.requestComments(this.props.id);
   }
 
-  private handlePostReply() {
-    const newComment = { message: this.state.newCommentMessage }
-    this.props.addComment(this.props.id, newComment)
-  }
-
-  //TODO: This code is repeated on the comment component! => take to another component
-  private renderReplyBox = () => {
-    return (      
-      <form>
-        <Input defaultValue="please reply here!" onChange={e => this.handleReplyChange(e.target.value)} required={true}></Input>
-        <Button color="secondary" onClick={this.handleReplySubmit}>Reply!</Button>
-      </form>      
-    )
-  }
-
-  private handleReplySubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();    
-    const comment = { message: this.state.newCommentMessage, likes: 0 }
+  private handleReplySubmit = (message: string) => {    
+    const comment = { message, likes: 0 }
     this.props.addComment(this.props.id, comment)
-  }
-  
-  private handleReplyChange = (value : string) => {        
-    this.setState({
-      newCommentMessage: value      
-    })
-  }
-
-  private handleTextClick = () => {
-    this.setState(prevState => ({
-      showReplyBox: !prevState.showReplyBox
-    })
-    )
-  }
-
-  // * ------- *
+  }  
 
   public render() {    
     const d = new Date();
@@ -89,8 +58,9 @@ class Post extends React.PureComponent<PostProps, IPostState> {
             <CardContent>
               <Typography variant="h5">{title}</Typography>
               <Typography variant="h6">{description}</Typography>   
-              <Button onClick={this.handleTextClick}>Create Top Comment</Button>                 
-              {this.state.showReplyBox && this.renderReplyBox()}
+              <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>
+              {/* <Button onClick={this.handleTextClick} color="primary">Create Top Comment</Button>                 
+              {this.state.showReplyBox && this.renderReplyBox()} */}
               <Typography variant="h6">Comments</Typography>              
                 {this.props.comments.map((comment : Models.Comment) => {                  
                   return <Comment {...comment}/>                  

@@ -58,9 +58,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
             <CardContent>
               <Typography variant="h5">{title}</Typography>
               <Typography variant="h6">{description}</Typography>   
-              <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>
-              {/* <Button onClick={this.handleTextClick} color="primary">Create Top Comment</Button>                 
-              {this.state.showReplyBox && this.renderReplyBox()} */}
+              <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>              
               <Typography variant="h6">Comments</Typography>              
                 {this.props.comments.map((comment : Models.Comment) => {                  
                   return <Comment {...comment}/>                  

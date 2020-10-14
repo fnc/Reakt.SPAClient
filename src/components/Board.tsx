@@ -2,15 +2,16 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
+import CustomizedAccordions from '../components/AccordionPosts'
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
-import { Button, List, Container, Typography } from '@material-ui/core'
+import NewBox from '../components/NewBox'
+import { List, Container, Typography } from '@material-ui/core'
 import Post from './Post'
 
 // At runtime, Redux will merge together...
 type BoardProps =
-  { board: Models.Board }  
-  & PostsStore.PostsState // ... state we've requested from the Redux store
+  { board: Models.Board, posts: Models.Post[], isLoading: boolean }    
   & typeof PostsStore.actionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
@@ -40,11 +41,17 @@ class Board extends React.PureComponent<BoardProps> {
     this.props.requestPosts(this.props.board.id);
   }
 
+  private handleSubmit = (title: string, description: string) => {
+    const post = { title, description }            
+    this.props.addPost(this.props.board.id, post);
+  }
+  
   private renderPostsTable() {    
     return (   
       <Container>
         <Typography variant="h3">Posts</Typography>     
-        <Button>Create Post</Button>                  
+        {CustomizedAccordions()}
+        <NewBox text="New Post" color="primary" handleSubmit={this.handleSubmit}></NewBox>
           {(this.props.posts && this.props.posts.length > 0) ? (            
             <List>              
               {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}

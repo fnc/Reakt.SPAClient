@@ -24,6 +24,7 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
       commentReply: "",
     }
   }
+
   public render() {        
     return (
       <Container>       
@@ -33,6 +34,7 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
       </Container>
     );
   }  
+  
   private renderChildren() {
     return (      
       <Container>
@@ -68,7 +70,6 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
 const mapStateToProps = 
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
-  posts: state.posts ? state.posts.posts: undefined,
   comments: state.comments ? state.comments.comments: undefined,
   isLoading: state.posts ? state.posts.isLoading: undefined,      
 });

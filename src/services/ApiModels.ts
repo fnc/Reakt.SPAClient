@@ -6,3 +6,8 @@ export interface Reply {
 export interface NewComment {
     message: string;    
 }
+
+export interface NewPost {
+  title: string;
+  description: string;
+}

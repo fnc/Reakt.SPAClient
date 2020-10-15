@@ -10,7 +10,7 @@ import Post from './Post'
 
 // At runtime, Redux will merge together...
 type BoardProps =
-  { board: Models.Board, posts: Models.Post[], isLoading: boolean }    
+  { board: Models.Board, posts: Models.Post[], isLoading: boolean, expandedPost: number; }    
   & typeof PostsStore.actionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
@@ -60,19 +60,6 @@ class Board extends React.PureComponent<BoardProps> {
       </Container>
     );
   }
-
-  // private renderPagination() {
-  //   const prevStartDateIndex = (this.props.startDateIndex || 0) - 5;
-  //   const nextStartDateIndex = (this.props.startDateIndex || 0) + 5;
-
-  //   return (
-  //     <div className="d-flex justify-content-between">
-  //       <Link className='btn btn-outline-secondary btn-sm' to={`/fetch-data/${prevStartDateIndex}`}>Previous</Link>
-  //       {this.props.isLoading && <span>Loading...</span>}
-  //       <Link className='btn btn-outline-secondary btn-sm' to={`/fetch-data/${nextStartDateIndex}`}>Next</Link>
-  //     </div>
-  //   );
-  // }
 }
 
 const mapStateToProps = 

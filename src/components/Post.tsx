@@ -3,44 +3,50 @@ import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as CommentsStore from '../store/Comments';
+import * as PostsStore from '../store/Posts';
 import Comment from './Comment';
 import ReplyBox from './ReplyBox';
 import { AccordionSummary, Accordion, AccordionDetails, ListItem, Typography } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
-  Models.Post
+  Models.Post    
   & CommentsStore.CommentsState
-  & typeof CommentsStore.actionCreators;
+  & typeof CommentsStore.actionCreators  
+  & { changeExpandedPost: (id: number) => any }
+  & { expandedPost: number }
+  ;
 
 interface IPostState {
   showReplyBox: boolean;
-  newCommentMessage: string;
+  newCommentMessage: string;   
+  isExpanded: boolean; 
 }
 
 // TODO: get the posts into the board props
 class Post extends React.PureComponent<PostProps, IPostState> {    
   constructor(props: PostProps) {
-    super(props);
+    super(props);    
     this.state={
       newCommentMessage: "",
-      showReplyBox: false,
+      showReplyBox: false,      
+      isExpanded: false,
     }
   }
-  // public componentDidMount() {
-  //   this.ensureDataFetched();
-  // }
 
-  private ensureDataFetched() {
-    const ps = this.props;
-    const s = this.state;
-    this.props.requestComments(this.props.id);
+  private ensureDataFetched() {    
+    this.props.requestComments(this.props.id);    
   }
 
-  private handleReplySubmit = (message: string) => {    
+  private handleReplySubmit = (message: string) => {            
     const comment = { message, likes: 0 }
     this.props.addComment(this.props.id, comment)
   }  
+
+  private handleChange = () => {            
+    this.props.changeExpandedPost(this.props.id);
+    this.ensureDataFetched()    
+  }
 
   public render() {    
     const d = new Date();
@@ -51,21 +57,21 @@ class Post extends React.PureComponent<PostProps, IPostState> {
       id = this.props.id;
       title = this.props.title;
       description = this.props.description;
-    }    
-    return (
-      //TODO: Add all comments to this, expand to accordion, [loading icon], create Post
+    }            
+    
+    return (      
       <ListItem key={id}>
-        <Accordion onClick={() =>{this.ensureDataFetched()}}>
+        {/* {AccordionPost(title, description, this.props.comments, this.handleReplySubmit)} */}
+        <Accordion expanded={this.props.id === this.props.expandedPost} onChange={this.handleChange} >
           <AccordionSummary>              
             <Typography variant="h5">{title}</Typography>
             <Typography variant="h6">{description}</Typography>   
             <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>                            
           </AccordionSummary>
-          <AccordionDetails>
-            <Typography variant="h6">Comments</Typography>              
+          <AccordionDetails>            
               {this.props.comments.map((comment : Models.Comment) => {                  
                 return <Comment {...comment}/>                  
-              })}              
+              })}                            
           </AccordionDetails>            
         </Accordion>
       </ListItem>
@@ -79,9 +85,18 @@ const mapStateToProps =
   posts: state.posts?state.posts.posts:undefined,
   comments: state.comments?state.comments.comments:undefined,
   isLoading: state.posts?state.posts.isLoading:undefined,
+  expandedPost: state.posts ? state.posts.expandedPost: false,
 });
+
+const mapDispatchToProps = 
+{  
+  requestComments: CommentsStore.actionCreators.requestComments,
+  addComment: CommentsStore.actionCreators.addComment,
+  addReply: CommentsStore.actionCreators.addReply,
+  changeExpandedPost: PostsStore.actionCreators.changeExpandedPost,
+}
 
 export default connect(
   mapStateToProps, // Selects which state properties are merged into the component's props
-  CommentsStore.actionCreators // Selects which action creators are merged into the component's props
+  mapDispatchToProps,  
 )(Post as any);

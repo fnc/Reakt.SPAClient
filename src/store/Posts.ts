@@ -3,13 +3,14 @@ import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
 import * as ApiModels from '../services/ApiModels'
 import { post } from '../services/HttpClient';
-import { REQUEST_POSTS, RECEIVE_POSTS, REQUEST_ADD_POST, ADDED_POST } from '../constants/action-types';
+import { CHANGE_EXPANDED_POST, REQUEST_POSTS, RECEIVE_POSTS, REQUEST_ADD_POST, ADDED_POST } from '../constants/action-types';
 import { BASE_URL } from '../constants/url';
 
 export interface PostsState {
   isLoading: boolean;    
   posts: Models.Post[];
   boardId: number;
+  expandedPost: number;
 }
 
 interface RequestPostsAction {
@@ -31,7 +32,12 @@ interface AddedPostAction {
   post: Models.Post;
 }
 
-type KnownAction = RequestPostsAction | ReceivePostAction | RequestAddPostAction | AddedPostAction;
+interface ChangeExpandedPostAction {
+  type: typeof CHANGE_EXPANDED_POST;
+  postId: number;
+}
+
+type KnownAction = RequestPostsAction | ReceivePostAction | RequestAddPostAction | AddedPostAction | ChangeExpandedPostAction;
 
 
 
@@ -59,11 +65,17 @@ export const actionCreators = {
       })
       .catch((error) => {console.log(error)});
     }
+  },
+  changeExpandedPost: (postId: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    const appState = getState();
+    if (appState.posts && appState.posts.expandedPost !== postId) {
+      dispatch({ type: CHANGE_EXPANDED_POST, postId });
+    }
   }
 };
 
 
-const unloadedState: PostsState = { posts: [], isLoading: false, boardId: 0 };
+const unloadedState: PostsState = { posts: [], isLoading: false, boardId: 0, expandedPost: 0 };
 
 export const reducer: Reducer<PostsState> = (state: PostsState | undefined, action: KnownAction): PostsState => {        
     if (state === undefined) {
@@ -75,25 +87,36 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
         return {                
           posts: [],
           isLoading: true,
-          boardId: 0
+          boardId: 0,
+          expandedPost: state.expandedPost,
         };
       case RECEIVE_POSTS:        
         return {                
           posts: action.posts,
           isLoading: false,
-          boardId: action.boardId
+          boardId: action.boardId,
+          expandedPost: state.expandedPost,
         };                 
       case REQUEST_ADD_POST:
         return {
           posts: state.posts,
           isLoading: true,
           boardId: state.boardId,
+          expandedPost: state.expandedPost,
         }
       case ADDED_POST:
         return {
           posts: [...state.posts, action.post],
           isLoading: false,
-          boardId: state.boardId
+          boardId: state.boardId,
+          expandedPost: state.expandedPost,
+        }
+      case CHANGE_EXPANDED_POST:
+        return {
+          posts: state.posts,
+          isLoading: false,
+          boardId: state.boardId,
+          expandedPost: action.postId,
         }
       default: 
           return state;

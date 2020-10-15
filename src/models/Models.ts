@@ -3,7 +3,7 @@ export interface Post {
     title: string;
     description: string;
     createdAt: Date;      
-    likes: number;
+    likes: number;    
 }
 
 export interface Board {    

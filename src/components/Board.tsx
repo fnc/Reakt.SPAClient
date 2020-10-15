@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
-import CustomizedAccordions from '../components/AccordionPosts'
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
 import NewBox from '../components/NewBox'
@@ -49,8 +48,7 @@ class Board extends React.PureComponent<BoardProps> {
   private renderPostsTable() {    
     return (   
       <Container>
-        <Typography variant="h3">Posts</Typography>     
-        {CustomizedAccordions()}
+        <Typography variant="h3">Posts</Typography>             
         <NewBox text="New Post" color="primary" handleSubmit={this.handleSubmit}></NewBox>
           {(this.props.posts && this.props.posts.length > 0) ? (            
             <List>              

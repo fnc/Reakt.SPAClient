@@ -5,7 +5,7 @@ import * as Models from '../models/Models';
 import * as CommentsStore from '../store/Comments';
 import Comment from './Comment';
 import ReplyBox from './ReplyBox';
-import { ListItem, Typography, Card, CardContent, Container, CardActions, Button } from '@material-ui/core';
+import { AccordionSummary, Accordion, AccordionDetails, ListItem, Typography } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
@@ -27,11 +27,13 @@ class Post extends React.PureComponent<PostProps, IPostState> {
       showReplyBox: false,
     }
   }
-  public componentDidMount() {
-    this.ensureDataFetched();
-  }
+  // public componentDidMount() {
+  //   this.ensureDataFetched();
+  // }
 
   private ensureDataFetched() {
+    const ps = this.props;
+    const s = this.state;
     this.props.requestComments(this.props.id);
   }
 
@@ -53,22 +55,19 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     return (
       //TODO: Add all comments to this, expand to accordion, [loading icon], create Post
       <ListItem key={id}>
-        <Container>
-          <Card>
-            <CardContent>
-              <Typography variant="h5">{title}</Typography>
-              <Typography variant="h6">{description}</Typography>   
-              <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>              
-              <Typography variant="h6">Comments</Typography>              
-                {this.props.comments.map((comment : Models.Comment) => {                  
-                  return <Comment {...comment}/>                  
-                })}              
-            </CardContent>
-            <CardActions>
-              <Button></Button>
-            </CardActions>
-          </Card>
-        </Container>
+        <Accordion onClick={() =>{this.ensureDataFetched()}}>
+          <AccordionSummary>              
+            <Typography variant="h5">{title}</Typography>
+            <Typography variant="h6">{description}</Typography>   
+            <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>                            
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="h6">Comments</Typography>              
+              {this.props.comments.map((comment : Models.Comment) => {                  
+                return <Comment {...comment}/>                  
+              })}              
+          </AccordionDetails>            
+        </Accordion>
       </ListItem>
     );
   }  

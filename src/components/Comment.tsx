@@ -26,12 +26,21 @@ class Comment extends React.PureComponent<CommentsProps, IState> {
   }
 
   public render() {        
-    return (
-      <Container>       
-        <Typography variant="h6">{this.props.message}</Typography>                 
-        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary"></ReplyBox>
-        {this.props.replies && this.renderChildren()}
-      </Container>
+    return (      
+      <Container> 
+        {this.props.isLoading ? (
+          // TODO: This is not working, maybe it should go on Post component
+          <div className="spinner-grow" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
+          ) : (      
+          <React.Fragment>
+            <Typography variant="h6">{this.props.message}</Typography>                 
+            <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
+            {this.props.replies && this.renderChildren()}
+          </React.Fragment>
+          )}
+      </Container>      
     );
   }  
   

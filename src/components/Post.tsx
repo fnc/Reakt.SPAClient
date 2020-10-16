@@ -1,3 +1,4 @@
+//* React imports *//
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
@@ -6,7 +7,7 @@ import * as CommentsStore from '../store/Comments';
 import * as PostsStore from '../store/Posts';
 import Comment from './Comment';
 import ReplyBox from './ReplyBox';
-import { AccordionSummary, Accordion, AccordionDetails, ListItem, Typography } from '@material-ui/core';
+import { AccordionSummary, Accordion, AccordionDetails, Container, ListItem, Typography, List, Card, CardActions, CardContent } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
 type PostProps =
@@ -48,36 +49,44 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.ensureDataFetched()    
   }
 
-  public render() {    
-    const d = new Date();
-    let id: number = d.getTime();
-    let title: string = "I'm a placeholder title";
-    let description: string = "I'm a placeholder description"
-    if (this.props) {
-      id = this.props.id;
-      title = this.props.title;
-      description = this.props.description;
-    }            
-    
-    return (      
-      <ListItem key={id}>
-        {/* {AccordionPost(title, description, this.props.comments, this.handleReplySubmit)} */}
-        <Accordion expanded={this.props.id === this.props.expandedPost} onChange={this.handleChange} >
-          <AccordionSummary>              
-            <Typography variant="h5">{title}</Typography>
-            <Typography variant="h6">{description}</Typography>   
-            <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"></ReplyBox>                            
-          </AccordionSummary>
-          <AccordionDetails>            
+  public render() {        
+    return (                  
+      <Accordion expanded={this.props.id === this.props.expandedPost} onChange={this.handleChange} className="container">
+        <AccordionSummary>                          
+            {this.props && this.postCard()}            
+        </AccordionSummary>
+        <AccordionDetails>            
+          <Container>
+            <List>
               {this.props.comments.map((comment : Models.Comment) => {                  
-                return <Comment {...comment}/>                  
+                return (
+                  <ListItem key={comment.id}>
+                    <Comment {...comment}/>                  
+                  </ListItem>
+                )
               })}                            
-          </AccordionDetails>            
-        </Accordion>
-      </ListItem>
+            </List>
+          </Container>
+        </AccordionDetails>            
+      </Accordion>      
     );
-  }  
+  }
+
+  private postCard = () => {
+    return (
+      <Card className="container card">
+        <CardContent>
+          <Typography variant="h5">{this.props.title}</Typography>
+          <Typography variant="h6">{this.props.description}</Typography>             
+        </CardContent>
+        <CardActions>
+          <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"/>
+        </CardActions>
+      </Card>
+    )
+  }
 }
+
 
 const mapStateToProps = 
 (state: ApplicationState) => ({

@@ -5,7 +5,7 @@ import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
 import * as PostsStore from '../store/Posts'
 import NewBox from '../components/NewBox'
-import { List, Container, Typography } from '@material-ui/core'
+import { List, ListItem, Container, Typography } from '@material-ui/core'
 import Post from './Post'
 
 // At runtime, Redux will merge together...
@@ -48,11 +48,17 @@ class Board extends React.PureComponent<BoardProps> {
   private renderPostsTable() {    
     return (   
       <Container>
-        <Typography variant="h3">Posts</Typography>             
+        <Typography className="display-2">Posts</Typography>             
         <NewBox text="New Post" color="primary" handleSubmit={this.handleSubmit}></NewBox>
           {(this.props.posts && this.props.posts.length > 0) ? (            
-            <List>              
-              {this.props.posts.map((post: Models.Post) => <Post {...post}/> )}
+            <List>                            
+              {this.props.posts.map((post: Models.Post) => {
+                return (
+                  <ListItem key={post.id} className="row">
+                    <Post {...post}/>
+                  </ListItem>
+                )
+              })}              
             </List>                
             ) :
             (<Typography variant="h6">No hay Posts!</Typography>)            

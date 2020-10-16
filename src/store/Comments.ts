@@ -32,11 +32,6 @@ interface AddedCommentAction {
     postId: number;
 }
 
-interface ToggleCommentTextboxAction {
-    type: typeof Actions.TOGGLE_COMMENT_TEXTBOX;
-    commentId: number;
-}
-
 interface RequestAddReplyAction {
     type: typeof Actions.REQUEST_ADD_REPLY,
 }

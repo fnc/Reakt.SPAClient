@@ -9,8 +9,7 @@ export interface NewComment {
 
 export interface NewPost {
   title: string;
-  description: string;
-  message: string;
+  description: string;  
 }
 
 export interface Comment {

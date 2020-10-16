@@ -76,7 +76,7 @@ class Comment extends React.PureComponent<CommentProps, IState> {
 const mapStateToProps = 
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
-  comments: state.comments ? state.comments.commentsStore: undefined,
+  commentsStore: state.comments ? state.comments.commentsStore: undefined,
   isLoading: state.posts ? state.posts.isLoading: undefined,      
 });
 

@@ -15,7 +15,7 @@ type PostProps =
   Models.Post    
   & CommentsStore.CommentsState
   & typeof CommentsStore.actionCreators  
-  & { changeExpandedPost: (id: number) => any }
+  & { changeExpandedPost: (id: number) => any, handlePostLike: (amount: number, postId: number) => any }
   & { expandedPost: number }
   ;
 
@@ -49,6 +49,10 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.props.addComment(this.props.id, message)
   }  
 
+  private handlePostLike = (amount: number) => {
+    this.props.handlePostLike(amount, this.props.id);
+  }
+
   public render() {        
     return (                  
       <Accordion expanded={this.props.id === this.props.expandedPost} onChange={this.handleChange} className="container">
@@ -80,7 +84,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
           <Typography variant="h6">{this.props.description}</Typography>             
         </CardContent>
         <CardActions>
-          <Like likes={15} commentId={this.props.id}/>
+          <Like likes={this.props.likes} parentId={this.props.id} handleClick={this.handlePostLike}/>
           <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"/>
         </CardActions>
       </Card>
@@ -104,6 +108,7 @@ const mapDispatchToProps =
   addComment: CommentsStore.actionCreators.addComment,
   addReply: CommentsStore.actionCreators.addReply,
   changeExpandedPost: PostsStore.actionCreators.changeExpandedPost,
+  handlePostLike: PostsStore.actionCreators.handlePostLike,  
 }
 
 export default connect(

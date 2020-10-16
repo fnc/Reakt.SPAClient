@@ -45,7 +45,7 @@ export const actionCreators = {
         const appState = getState();        
         if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {            
             dispatch({ type: REQUEST_BOARDS });
-            fetch("https://localhost:44387/api/boards")            
+            fetch("https://localhost:44387/api")            
                 .then(response => response.json() as Promise<Models.Board[]>)
                 .then(data => {
                     dispatch({ type: RECEIVE_BOARDS, boards: data });

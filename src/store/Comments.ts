@@ -2,89 +2,115 @@ import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
 import * as ApiModels from '../services/ApiModels';
-import { ADDED_REPLY, REQUEST_ADD_REPLY ,REQUEST_COMMENTS, RECEIVE_COMMENTS, REQUEST_ADD_COMMENT, ADDED_COMMENT } from '../constants/action-types';
-import { BASE_URL } from '../constants/url';
-import * as HttpClient from '../services/HttpClient';
+import * as Actions from '../constants/action-types';
+import * as CommentService from '../services/CommentService';
 
 export interface CommentsState {
     isLoading: boolean;
     isPostingComment: boolean;
-    comments: Models.Comment[];
+    commentsStore: Models.Comment[];
     postId: number;
 }
 
 interface RequestCommentsAction {
-    type: typeof REQUEST_COMMENTS
+    type: typeof Actions.REQUEST_COMMENTS
 }
 
 interface ReceiveCommentsAction {
-    type: typeof RECEIVE_COMMENTS;
-    comments: Models.Comment[];
+    type: typeof Actions.RECEIVE_COMMENTS;
+    comments: ApiModels.Comment[];
     postId: number;
 }
 
 interface AddCommentAction {
-    type: typeof REQUEST_ADD_COMMENT;
-    comment: ApiModels.NewComment;
+    type: typeof Actions.REQUEST_ADD_COMMENT;
+    message: string;
 }
 interface AddedCommentAction {
-    type: typeof ADDED_COMMENT;
-    comment: Models.Comment;
+    type: typeof Actions.ADDED_COMMENT;
+    comment: ApiModels.Comment;
     postId: number;
 }
 
+interface ToggleCommentTextboxAction {
+    type: typeof Actions.TOGGLE_COMMENT_TEXTBOX;
+    commentId: number;
+}
+
 interface RequestAddReplyAction {
-    type: typeof REQUEST_ADD_REPLY,    
+    type: typeof Actions.REQUEST_ADD_REPLY,
 }
 
 interface AddedReplyAction {
-    type: typeof ADDED_REPLY,
-    reply: Models.Comment,
+    type: typeof Actions.ADDED_REPLY,
+    reply: ApiModels.Comment,
     commentParentId: number,
 }
 
+interface RequestRepliesAction {
+    type: typeof Actions.REQUEST_REPLIES
+}
 
-type KnownAction = RequestCommentsAction | ReceiveCommentsAction | AddCommentAction | AddedCommentAction | RequestAddReplyAction | AddedReplyAction;
+interface ReceiveRepliesAction {
+    type: typeof Actions.RECEIVE_REPLIES;
+    replies: ApiModels.Comment[];
+    commentId: number;
+}
+
+type KnownAction = RequestCommentsAction |
+    ReceiveCommentsAction |
+    AddCommentAction |
+    AddedCommentAction |
+    RequestAddReplyAction |
+    AddedReplyAction |
+    RequestRepliesAction |
+    ReceiveRepliesAction;
+
 
 export const actionCreators = {
     requestComments: (requestedPostId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
-        let filters = new Map<string, string>();
-        if (startRange) { filters.set("startRange", startRange.toString()); }
-        if (endRange) { filters.set("endRange", endRange.toString()); }
         if (appState && appState.comments && appState.comments.postId !== requestedPostId && !appState.comments.isLoading) {
-            dispatch({ type: REQUEST_COMMENTS });
-            HttpClient.get(`${BASE_URL}posts/${requestedPostId}/comments`, filters)
-                .then(response => response.json() as Promise<Models.Comment[]>)
+            CommentService.getComments(requestedPostId, startRange, endRange)
                 .then(data => {
-                    dispatch({ type: RECEIVE_COMMENTS, comments: data, postId: requestedPostId });
+                    dispatch({ type: Actions.RECEIVE_COMMENTS, comments: data, postId: requestedPostId });
                 });
+            dispatch({ type: Actions.REQUEST_COMMENTS });
         }
     },
-    addReply: (commentParentId: number, reply: ApiModels.Reply): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    requestReplies: (requestedCommentId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (appState && appState.comments && appState.comments.postId !== requestedCommentId && !appState.comments.isLoading) {
+            CommentService.getReplies(requestedCommentId, startRange, endRange)
+                .then(data => {
+                    dispatch({ type: Actions.RECEIVE_REPLIES, replies: data, commentId: requestedCommentId });
+                })
+                .catch((error) => { console.error('Error:', error) });
+            dispatch({ type: Actions.REQUEST_REPLIES });
+        }
+    },
+    addReply: (commentParentId: number, message: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
         if (appState.comments && !appState.comments.isLoading) {
-            dispatch({ type: REQUEST_ADD_REPLY });
-            HttpClient.post(`${BASE_URL}comments/${commentParentId}/replies`, reply)
-                .then(response => response.json() as Promise<Models.Comment>)
+            CommentService.addReply(commentParentId, {message: message} )
                 .then(data => {
-                    dispatch({ type: ADDED_REPLY, reply: data, commentParentId })
+                    dispatch({ type: Actions.ADDED_REPLY, reply: data, commentParentId })
                 })
-                .catch((error) => {console.error('Error:', error)});
+                .catch((error) => { console.error('Error:', error) });
+            dispatch({ type: Actions.REQUEST_ADD_REPLY });
         }
-    },    
-    addComment: (requestedPostId: number, comment: ApiModels.NewComment): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        HttpClient.post(`${BASE_URL}posts/${requestedPostId}/comments`, comment)
-            .then(response => response.json() as Promise<Models.Comment>)
+    },
+    addComment: (requestedPostId: number, message: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        CommentService.addComment(requestedPostId,{message: message})
             .then(data => {
-                dispatch({ type: ADDED_COMMENT, comment: data, postId: requestedPostId });
+                dispatch({ type: Actions.ADDED_COMMENT, comment: data, postId: requestedPostId });
             });
-        dispatch({ type: REQUEST_ADD_COMMENT, comment: comment });
+        dispatch({ type: Actions.REQUEST_ADD_COMMENT, message: message });
     }
 };
 
 
-const unloadedState: CommentsState = { comments: [], isPostingComment: false, isLoading: false, postId: 0 };
+const unloadedState: CommentsState = { commentsStore: [], isPostingComment: false, isLoading: false, postId: 0 };
 
 export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined, action: KnownAction): CommentsState => {
     if (state === undefined) {
@@ -92,59 +118,106 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
     }
 
     switch (action.type) {
-        case REQUEST_COMMENTS:
+        case Actions.REQUEST_COMMENTS:
             return {
-                comments: [],
+                commentsStore: [],
                 isLoading: true,
                 isPostingComment: state.isPostingComment,
                 postId: 0
             };
-        case RECEIVE_COMMENTS:            
+        case Actions.RECEIVE_COMMENTS:
             return {
-                comments: action.comments,
+                commentsStore: action.comments.map((c):Models.Comment => ({...c, isRootComment: true, replies:[]})),
                 isLoading: false,
                 isPostingComment: state.isPostingComment,
                 postId: action.postId
             };
-        case REQUEST_ADD_COMMENT:
+        case Actions.REQUEST_ADD_COMMENT:
             return {
-                comments: state.comments,
+                commentsStore: state.commentsStore,
                 isLoading: state.isLoading,
                 isPostingComment: true,
                 postId: state.postId
             };
-        case ADDED_COMMENT:
+        case Actions.ADDED_COMMENT:
             return {
-                comments: [...state.comments,action.comment],
+                commentsStore: [...state.commentsStore, {...(action.comment), isRootComment: true, replies:[]}],
                 isLoading: state.isLoading,
                 isPostingComment: false,
                 postId: state.postId
             };
-        case REQUEST_ADD_REPLY: 
+        case Actions.REQUEST_ADD_REPLY:
             return {
-                comments: state.comments,
+                commentsStore: state.commentsStore,
                 isLoading: true,
                 postId: state.postId,
                 isPostingComment: false,
             }
-        case ADDED_REPLY: 
+        case Actions.ADDED_REPLY:
             return {
-                comments: addReplyFunc(state.comments, action),
+                commentsStore: addReplyFunc(state.commentsStore, action),
                 isLoading: false,
                 postId: state.postId,
                 isPostingComment: false,
-            }           
+            }
+        case Actions.REQUEST_REPLIES:
+            return {
+                commentsStore: state.commentsStore,
+                isLoading: true,
+                isPostingComment: state.isPostingComment,
+                postId: 0
+            };
+        case Actions.RECEIVE_REPLIES:
+            return {
+                commentsStore: action.replies?addRepliesFunc(state.commentsStore, action.replies, action.commentId):[],
+                isLoading: false,
+                isPostingComment: state.isPostingComment,
+                postId: state.postId
+            };
         default:
             return state;
     };
 };
 
-const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {    
-    let commentsCopy = comments.slice();        
+const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {
+    let commentsCopy = comments.slice();
     commentsCopy.forEach(c => {
         if (c.id === action.commentParentId) {
-            c.replies.push(action.reply);
-        }  
-    })
+            c.replies.push(action.reply.id);
+        }
+    });
+    let reply: Models.Comment = {
+        id: action.reply.id,
+        likes: action.reply.likes,
+        message: action.reply.message,
+        replies: [],
+        replyCount: action.reply.replyCount,
+        createdAt: action.reply.createdAt,
+        deletedAt: action.reply.deletedAt,
+        updatedAt: action.reply.updatedAt,
+        isRootComment: false
+    };
+    commentsCopy.push(reply);
+    return commentsCopy;
+}
+
+const addRepliesFunc = (comments: Models.Comment[], replies: ApiModels.Comment[], commentId: number) => {
+    let repliesIds = replies.map(r => r.id);
+    let commentsCopy = comments.filter(c=>(!(c.id in repliesIds ))).map(c => (c));
+    let parenComment = commentsCopy.find(c => ( c.id === commentId ));
+    if(parenComment){parenComment.replies.push(...repliesIds);}
+    let mappedReplies = replies.map((r):Models.Comment => (
+        {
+            id: r.id,
+            likes: r.likes,
+            message: r.message,
+            replies: [],
+            replyCount: r.replyCount,
+            createdAt: r.createdAt,
+            deletedAt: r.deletedAt,
+            updatedAt: r.updatedAt,
+            isRootComment: false
+        }));
+    commentsCopy.push(...mappedReplies);
     return commentsCopy;
 }

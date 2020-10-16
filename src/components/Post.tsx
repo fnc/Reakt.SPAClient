@@ -40,14 +40,13 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.props.requestComments(this.props.id);    
   }
 
-  private handleReplySubmit = (message: string) => {            
-    const comment = { message, likes: 0 }
-    this.props.addComment(this.props.id, comment)
-  }  
-
   private handleChange = () => {            
     this.props.changeExpandedPost(this.props.id);
     this.ensureDataFetched()    
+  }
+
+  private handleReplySubmit = (message: string) => {    
+    this.props.addComment(this.props.id, message)
   }  
 
   public render() {        
@@ -59,7 +58,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
         <AccordionDetails>            
           <Container>
             <List>
-              {this.props.comments.map((comment : Models.Comment) => {                  
+              {this.props.commentsStore.map((comment : Models.Comment) => {                  
                 return (
                   <ListItem key={comment.id}>
                     <Comment {...comment}/>                  
@@ -94,7 +93,7 @@ const mapStateToProps =
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
   posts: state.posts?state.posts.posts:undefined,
-  comments: state.comments?state.comments.comments:undefined,
+  commentsStore: state.comments?state.comments.commentsStore.filter(c=>(c.isRootComment)):undefined,
   isLoading: state.posts?state.posts.isLoading:undefined,
   expandedPost: state.posts ? state.posts.expandedPost: false,
 });

@@ -3,7 +3,7 @@ export interface Post {
     title: string;
     description: string;
     createdAt: Date;      
-    likes: number;    
+    likes: number;
 }
 
 export interface Board {    
@@ -16,9 +16,12 @@ export interface Comment {
     id: number;
     likes: number;
     message: string;
-    createdAt: Date;        
-    replies: Comment[];
+    createdAt: Date;
+    deletedAt: Date;
+    updatedAt: Date;      
+    replies: number[];
     replyCount: number;
+    isRootComment: boolean;
 }
 
 // Future purposes: aka when user is added. 

@@ -36,8 +36,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
   }
 
   private handleReplySubmit = (message: string) => {    
-    const comment = { message, likes: 0 }
-    this.props.addComment(this.props.id, comment)
+    this.props.addComment(this.props.id, message)
   }  
 
   public render() {    
@@ -62,7 +61,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
               {/* <Button onClick={this.handleTextClick} color="primary">Create Top Comment</Button>                 
               {this.state.showReplyBox && this.renderReplyBox()} */}
               <Typography variant="h6">Comments</Typography>              
-                {this.props.comments.map((comment : Models.Comment) => {                  
+                {this.props.commentsStore.map((comment : Models.Comment) => {                  
                   return <Comment {...comment}/>                  
                 })}              
             </CardContent>
@@ -80,7 +79,7 @@ const mapStateToProps =
 (state: ApplicationState) => ({
   board: state.boards ? state.boards.currentBoard : undefined,
   posts: state.posts?state.posts.posts:undefined,
-  comments: state.comments?state.comments.comments:undefined,
+  commentsStore: state.comments?state.comments.commentsStore.filter(c=>(c.isRootComment)):undefined,
   isLoading: state.posts?state.posts.isLoading:undefined,
 });
 

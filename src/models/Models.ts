@@ -20,3 +20,8 @@ export interface Comment {
     replies: Comment[];
     replyCount: number;
 }
+
+// Future purposes: aka when user is added. 
+export interface Like {
+  commentId: number;
+}

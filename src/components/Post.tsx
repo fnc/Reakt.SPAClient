@@ -7,6 +7,7 @@ import * as CommentsStore from '../store/Comments';
 import * as PostsStore from '../store/Posts';
 import Comment from './Comment';
 import ReplyBox from './ReplyBox';
+import Like from './Like'
 import { AccordionSummary, Accordion, AccordionDetails, Container, ListItem, Typography, List, Card, CardActions, CardContent } from '@material-ui/core';
 
 // At runtime, Redux will merge together...
@@ -47,7 +48,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
   private handleChange = () => {            
     this.props.changeExpandedPost(this.props.id);
     this.ensureDataFetched()    
-  }
+  }  
 
   public render() {        
     return (                  
@@ -80,6 +81,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
           <Typography variant="h6">{this.props.description}</Typography>             
         </CardContent>
         <CardActions>
+          <Like likes={15} commentId={this.props.id}/>
           <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"/>
         </CardActions>
       </Card>

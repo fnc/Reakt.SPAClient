@@ -1,7 +1,7 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
-import { REQUEST_POSTS, RECEIVE_POSTS } from '../constants/action-types';
+import * as Actions from '../constants/action-types';
 import { BASE_URL } from '../constants/url';
 
 export interface PostsState {
@@ -11,11 +11,11 @@ export interface PostsState {
 }
 
 interface RequestPostsAction {
-    type: typeof REQUEST_POSTS
+    type: typeof Actions.REQUEST_POSTS
 }
 
 interface ReceivePostAction {
-    type: typeof RECEIVE_POSTS;    
+    type: typeof Actions.RECEIVE_POSTS;    
     posts: Models.Post[];
     boardId: number;
 }
@@ -29,11 +29,11 @@ export const actionCreators = {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
         if (appState && appState.posts && appState.posts.boardId !== boardRequest && !appState.posts.isLoading) {
-            dispatch({ type: REQUEST_POSTS });            
+            dispatch({ type: Actions.REQUEST_POSTS });            
             fetch( BASE_URL + "boards/"+boardRequest+"/posts")            
             .then(response => response.json() as Promise<Models.Post[]>)
             .then(data => {
-                dispatch({ type: RECEIVE_POSTS, posts: data, boardId: boardRequest });
+                dispatch({ type: Actions.RECEIVE_POSTS, posts: data, boardId: boardRequest });
             });
         }
     }
@@ -48,18 +48,18 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
     }
     
     switch (action.type) {
-        case REQUEST_POSTS:
+        case Actions.REQUEST_POSTS:
             return {                
                 posts: [],
                 isLoading: true,
                 boardId: 0
             };
-        case RECEIVE_POSTS:        
+        case Actions.RECEIVE_POSTS:        
             return {                
                 posts: action.posts,
                 isLoading: false,
                 boardId: action.boardId
-            };                 
+            };         
         default: 
             return state;
     };        

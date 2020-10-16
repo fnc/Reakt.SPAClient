@@ -4,6 +4,7 @@ export interface Post {
     description: string;
     createdAt: Date;      
     likes: number;
+
 }
 
 export interface Board {    
@@ -16,9 +17,10 @@ export interface Comment {
     id: number;
     likes: number;
     message: string;
-    createdAt: Date;    
-    showTextBox: boolean;
-    replies: Comment[];
+    createdAt: Date;
+    deletedAt: Date;
+    updatedAt: Date;      
+    replies: number[];
     replyCount: number;
-    isLoadingReplies: boolean;
+    isRootComment: boolean;
 }

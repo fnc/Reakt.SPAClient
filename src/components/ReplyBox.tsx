@@ -17,7 +17,7 @@ class ReplyBox extends React.PureComponent<ReplyBoxProps, IReplyBoxState> {
   constructor(props: ReplyBoxProps) {
     super(props) 
     this.state = {
-      message: "",     
+      message: "Write your reply here!",     
       showThyself: false,   
     };
   }
@@ -30,7 +30,7 @@ class ReplyBox extends React.PureComponent<ReplyBoxProps, IReplyBoxState> {
 
   private toggleShowReplyBox = () => {
     this.setState(prevState =>({
-      showThyself: !prevState.showThyself
+      showThyself: !prevState.showThyself      
     }))
   }
 
@@ -58,7 +58,7 @@ class ReplyBox extends React.PureComponent<ReplyBoxProps, IReplyBoxState> {
   private renderReplyBox() {
     return (
       <form>
-        <Input defaultValue="please reply here!" onChange={e => this.handleReplyChange(e.target.value)} required={true}></Input>
+        <Input defaultValue={this.state.message} onChange={e => this.handleReplyChange(e.target.value)} required={true}></Input>
         <Button color="secondary" onClick={this.checkAndHandleSubmit}>Reply!</Button>
       </form>      
     )

@@ -4,7 +4,6 @@ export interface Post {
     description: string;
     createdAt: Date;      
     likes: number;
-
 }
 
 export interface Board {    
@@ -23,4 +22,9 @@ export interface Comment {
     replies: number[];
     replyCount: number;
     isRootComment: boolean;
+}
+
+// Future purposes: aka when user is added. 
+export interface Like {
+  commentId: number;
 }

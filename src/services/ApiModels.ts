@@ -4,7 +4,12 @@ export interface Reply {
 }
 
 export interface NewComment {
-    message: string;
+    message: string;    
+}
+
+export interface NewPost {
+  title: string;
+  description: string;  
 }
 
 export interface Comment {

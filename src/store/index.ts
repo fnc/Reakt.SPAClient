@@ -1,14 +1,9 @@
-import * as WeatherForecasts from './WeatherForecasts';
 import * as Boards from './Boards';
 import * as Posts from './Posts'
-import * as Counter from './Counter';
 import * as Comments from './Comments'
-//import * as Models from '../models/Models';
 
 // The top-level state object
-export interface ApplicationState {
-    counter: Counter.CounterState | undefined;
-    weatherForecasts: WeatherForecasts.WeatherForecastsState | undefined;
+export interface ApplicationState {    
     boards: Boards.BoardsState | undefined;
     posts: Posts.PostsState | undefined;    
     comments: Comments.CommentsState | undefined;
@@ -17,9 +12,7 @@ export interface ApplicationState {
 // Whenever an action is dispatched, Redux will update each top-level application state property using
 // the reducer with the matching name. It's important that the names match exactly, and that the reducer
 // acts on the corresponding ApplicationState property type.
-export const reducers = {
-    counter: Counter.reducer,
-    weatherForecasts: WeatherForecasts.reducer,
+export const reducers = {    
     boards: Boards.reducer,
     posts: Posts.reducer,
     comments: Comments.reducer

@@ -32,7 +32,7 @@ class Comment extends React.PureComponent<CommentProps, IState> {
     return (
       <Container>
         <Typography variant="h6">{this.props.message}</Typography>
-        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary"></ReplyBox>
+        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
         {this.props.replies && this.renderChildren()}
       </Container>
     );
@@ -73,13 +73,12 @@ class Comment extends React.PureComponent<CommentProps, IState> {
 }
 
 
-const mapStateToProps =
-  (state: ApplicationState) => ({
-    board: state.boards ? state.boards.currentBoard : undefined,
-    posts: state.posts ? state.posts.posts : undefined,
-    commentsStore: state.comments ? state.comments.commentsStore : undefined,
-    isLoading: state.posts ? state.posts.isLoading : undefined,
-  });
+const mapStateToProps = 
+(state: ApplicationState) => ({
+  board: state.boards ? state.boards.currentBoard : undefined,
+  commentsStore: state.comments ? state.comments.commentsStore: undefined,
+  isLoading: state.posts ? state.posts.isLoading: undefined,      
+});
 
 export default connect(
   mapStateToProps, // Selects which state properties are merged into the component's props

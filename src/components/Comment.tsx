@@ -60,7 +60,7 @@ class Comment extends React.PureComponent<CommentProps, IState> {
                 </ListItem>
               );
             }
-            return;
+            return undefined;
           })}
         </List>
       </Container>

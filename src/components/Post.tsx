@@ -32,7 +32,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.state={
       newCommentMessage: "",
       showReplyBox: false,      
-      isExpanded: false,
+      isExpanded: this.props.id === this.props.expandedPost,
     }
   }
 
@@ -40,9 +40,11 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.props.requestComments(this.props.id);    
   }
 
-  private handleChange = () => {            
-    this.props.changeExpandedPost(this.props.id);
-    this.ensureDataFetched()    
+  private handleChange = () => {          
+    if (!this.state.isExpanded) {
+      this.props.changeExpandedPost(this.props.id);
+      this.ensureDataFetched()    
+    }
   }
 
   private handleReplySubmit = (message: string) => {    

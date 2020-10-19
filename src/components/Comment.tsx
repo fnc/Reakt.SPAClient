@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Container, List, ListItem, Typography } from '@material-ui/core';
+import { Button, Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
 import ReplyBox from './ReplyBox';
 import Like from './Like';
@@ -25,12 +25,6 @@ class Comment extends React.PureComponent<CommentProps, IState> {
     }
   }
   
-  public componentDidMount() {
-    if (this.props.replyCount > 0) {
-      this.props.requestReplies(this.props.id);
-    }
-  }
-
   private handleCommentLike = (amount: number) => {
     this.props.handleCommentLike(amount, this.props.id);
   }
@@ -42,10 +36,14 @@ class Comment extends React.PureComponent<CommentProps, IState> {
         <Typography variant="h6">{this.props.message}</Typography>
         <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
         <Like parentId={this.props.id} likes={this.props.likes} handleClick={this.handleCommentLike}/>
-        {this.props.replies && this.renderChildren()}
+        {this.props.replyCount > 0 && this.props.replies.length === 0 && this.renderLoadRepliesButton()} 
+        {/* check for length since replies will never be undefined */}
+        {this.props.replies.length > 0 && this.renderChildren()}
       </Container>
     );
   }
+
+
   private renderChildren() {
     return (
       <Container>
@@ -74,6 +72,12 @@ class Comment extends React.PureComponent<CommentProps, IState> {
           })}
         </List>
       </Container>
+    )
+  }
+
+  private renderLoadRepliesButton = () => {
+    return (
+      <Button onClick={() => {this.props.requestReplies(this.props.id)}}>Load replies!</Button>
     )
   }
 

@@ -92,7 +92,7 @@ export const actionCreators = {
     },
     requestReplies: (requestedCommentId: number, startRange?: number, endRange?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
-        if (appState && appState.comments && appState.comments.postId !== requestedCommentId && !appState.comments.isLoading) {
+        if (appState && appState.comments && !appState.comments.isLoading) {
             CommentService.getReplies(requestedCommentId, startRange, endRange)
                 .then(data => {
                     dispatch({ type: Actions.RECEIVE_REPLIES, replies: data, commentId: requestedCommentId });
@@ -122,11 +122,11 @@ export const actionCreators = {
     handleCommentLike: (amount: number, commentId: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
       const appState = getState();
       if (appState && appState.comments && !appState.comments.isLoading) {
+        dispatch({ type: Actions.REQUEST_COMMENT_LIKE});      
         CommentService.likeAComment(amount, commentId)
           .then(data => {
             dispatch({ type: Actions.UPDATED_COMMENT_LIKE, likes: data.likes, commentId: data.id })
           })
-        dispatch({ type: Actions.REQUEST_COMMENT_LIKE});      
       }
     }
 };
@@ -191,7 +191,7 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
             };
         case Actions.RECEIVE_REPLIES:
             return {
-                commentsStore: action.replies?addRepliesFunc(state.commentsStore, action.replies, action.commentId):[],
+                commentsStore: action.replies ? receiveRepliesFunc(state.commentsStore, action.replies, action.commentId) : state.commentsStore,
                 isLoading: false,
                 isPostingComment: state.isPostingComment,
                 postId: state.postId
@@ -237,9 +237,9 @@ const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {
     return commentsCopy;
 }
 
-const addRepliesFunc = (comments: Models.Comment[], replies: ApiModels.Comment[], commentId: number) => {
+const receiveRepliesFunc = (comments: Models.Comment[], replies: ApiModels.Comment[], commentId: number) => {
     let repliesIds = replies.map(r => r.id);
-    let commentsCopy = comments.filter(c=>(!(c.id in repliesIds ))).map(c => (c));
+    let commentsCopy = comments.filter(c=>(!repliesIds.includes(c.id)));
     let parenComment = commentsCopy.find(c => ( c.id === commentId ));
     if(parenComment){parenComment.replies.push(...repliesIds);}
     let mappedReplies = replies.map((r):Models.Comment => (

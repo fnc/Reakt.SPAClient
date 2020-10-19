@@ -5,6 +5,7 @@ import * as Models from '../models/Models';
 import { Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
 import ReplyBox from './ReplyBox';
+import Like from './Like';
 
 // At runtime, Redux will merge together...
 type CommentProps =
@@ -23,16 +24,24 @@ class Comment extends React.PureComponent<CommentProps, IState> {
       commentReply: "",
     }
   }
+  
   public componentDidMount() {
     if (this.props.replyCount > 0) {
       this.props.requestReplies(this.props.id);
     }
   }
+
+  private handleCommentLike = (amount: number) => {
+    this.props.handleCommentLike(amount, this.props.id);
+  }
+
+
   public render() {
     return (
       <Container>
         <Typography variant="h6">{this.props.message}</Typography>
         <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
+        <Like parentId={this.props.id} likes={this.props.likes} handleClick={this.handleCommentLike}/>
         {this.props.replies && this.renderChildren()}
       </Container>
     );
@@ -56,6 +65,7 @@ class Comment extends React.PureComponent<CommentProps, IState> {
                     addComment={this.props.addComment}
                     addReply={this.props.addReply}
                     requestReplies={this.props.requestReplies}
+                    handleCommentLike={this.props.handleCommentLike}
                     {...comment} />
                 </ListItem>
               );

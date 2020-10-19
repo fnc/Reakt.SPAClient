@@ -52,14 +52,31 @@ interface ReceiveRepliesAction {
     commentId: number;
 }
 
-type KnownAction = RequestCommentsAction |
-    ReceiveCommentsAction |
-    AddCommentAction |
-    AddedCommentAction |
-    RequestAddReplyAction |
-    AddedReplyAction |
-    RequestRepliesAction |
-    ReceiveRepliesAction;
+// TODO: this are oh so many actions
+interface RequestCommentLikeAction {
+  type: typeof Actions.REQUEST_COMMENT_LIKE;
+}
+
+interface UpdatedCommentLikeAction {
+  type: typeof Actions.UPDATED_COMMENT_LIKE;
+  likes: number;
+  commentId: number;
+}
+
+
+
+type KnownAction = 
+    RequestCommentsAction
+    | ReceiveCommentsAction
+    | AddCommentAction
+    | AddedCommentAction
+    | RequestAddReplyAction
+    | AddedReplyAction
+    | RequestRepliesAction
+    | ReceiveRepliesAction
+    | RequestCommentLikeAction
+    | UpdatedCommentLikeAction
+    ;
 
 
 export const actionCreators = {
@@ -101,6 +118,16 @@ export const actionCreators = {
                 dispatch({ type: Actions.ADDED_COMMENT, comment: data, postId: requestedPostId });
             });
         dispatch({ type: Actions.REQUEST_ADD_COMMENT, message: message });
+    },
+    handleCommentLike: (amount: number, commentId: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      const appState = getState();
+      if (appState && appState.comments && !appState.comments.isLoading) {
+        CommentService.likeAComment(amount, commentId)
+          .then(data => {
+            dispatch({ type: Actions.UPDATED_COMMENT_LIKE, likes: data.likes, commentId: data.id })
+          })
+        dispatch({ type: Actions.REQUEST_COMMENT_LIKE});      
+      }
     }
 };
 
@@ -169,6 +196,20 @@ export const reducer: Reducer<CommentsState> = (state: CommentsState | undefined
                 isPostingComment: state.isPostingComment,
                 postId: state.postId
             };
+        case Actions.REQUEST_COMMENT_LIKE: 
+            return {
+              commentsStore: state.commentsStore,
+              isLoading: true,
+              isPostingComment: state.isPostingComment,
+              postId: state.postId,
+            }
+        case Actions.UPDATED_COMMENT_LIKE: 
+            return {
+              commentsStore: likeACommentFunc(state.commentsStore, action.commentId, action.likes),
+              isLoading: false,
+              isPostingComment: state.isPostingComment,
+              postId: state.postId,
+            }
         default:
             return state;
     };
@@ -215,4 +256,14 @@ const addRepliesFunc = (comments: Models.Comment[], replies: ApiModels.Comment[]
         }));
     commentsCopy.push(...mappedReplies);
     return commentsCopy;
+}
+
+const likeACommentFunc = (comments: Models.Comment[], commentId: number, likes: number) : Models.Comment[] => {
+  const commentsCopy = comments.slice();
+  commentsCopy.forEach((c) => {
+    if (c.id === commentId) {
+      c.likes = likes;
+    }
+  })
+  return commentsCopy;
 }

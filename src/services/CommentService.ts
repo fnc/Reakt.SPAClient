@@ -27,3 +27,9 @@ export function addReply(commentId: number, reply: ApiModels.Reply ): Promise<Ap
     return HttpClient.post(`${BASE_URL}comments/${commentId}/replies`, reply)
     .then(response => response.json() as Promise<ApiModels.Comment>);
 };
+
+export async function likeAComment(amount: number, commentId: number): Promise<ApiModels.Comment> {
+  // TODO: amount right now is no doing anything since the server upvotes all comments. 
+  const response = await HttpClient.patchReplace(`${BASE_URL}comments/${commentId}/like`, "likes", 1);
+  return await (response.json() as Promise<ApiModels.Comment>);
+}

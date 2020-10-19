@@ -116,7 +116,7 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
         };
       case Actions.RECEIVE_POSTS:        
         // TODO: this must be done here since the post likes do not exist on the api
-        const posts = action.posts.forEach((p) => {p.likes = 0});
+        action.posts.forEach((p) => {p.likes = 0});
         return {                
           posts: action.posts,
           isLoading: false,

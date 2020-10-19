@@ -32,11 +32,11 @@ class Comment extends React.PureComponent<CommentProps, IState> {
 
   public render() {
     return (
-      <Container>
+      <Container className="comment-border">
         <Typography variant="h6">{this.props.message}</Typography>
-        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
         <Like parentId={this.props.id} likes={this.props.likes} handleClick={this.handleCommentLike}/>
         {this.props.replyCount > 0 && this.props.replies.length === 0 && this.renderLoadRepliesButton()} 
+        <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
         {/* check for length since replies will never be undefined */}
         {this.props.replies.length > 0 && this.renderChildren()}
       </Container>

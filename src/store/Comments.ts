@@ -52,7 +52,7 @@ interface ReceiveRepliesAction {
     commentId: number;
 }
 
-// TODO: this are oh so many actions
+// TODO: there are oh so many actions
 interface RequestCommentLikeAction {
   type: typeof Actions.REQUEST_COMMENT_LIKE;
 }
@@ -221,19 +221,8 @@ const addReplyFunc = (comments: Models.Comment[], action: AddedReplyAction) => {
         if (c.id === action.commentParentId) {
             c.replies.push(action.reply.id);
         }
-    });
-    let reply: Models.Comment = {
-        id: action.reply.id,
-        likes: action.reply.likes,
-        message: action.reply.message,
-        replies: [],
-        replyCount: action.reply.replyCount,
-        createdAt: action.reply.createdAt,
-        deletedAt: action.reply.deletedAt,
-        updatedAt: action.reply.updatedAt,
-        isRootComment: false
-    };
-    commentsCopy.push(reply);
+    });   
+    commentsCopy.push(action.reply as Models.Comment); // TODO: Apparently casting works as maping.
     return commentsCopy;
 }
 
@@ -241,19 +230,8 @@ const receiveRepliesFunc = (comments: Models.Comment[], replies: ApiModels.Comme
     let repliesIds = replies.map(r => r.id);
     let commentsCopy = comments.filter(c=>(!repliesIds.includes(c.id)));
     let parenComment = commentsCopy.find(c => ( c.id === commentId ));
-    if(parenComment){parenComment.replies.push(...repliesIds);}
-    let mappedReplies = replies.map((r):Models.Comment => (
-        {
-            id: r.id,
-            likes: r.likes,
-            message: r.message,
-            replies: [],
-            replyCount: r.replyCount,
-            createdAt: r.createdAt,
-            deletedAt: r.deletedAt,
-            updatedAt: r.updatedAt,
-            isRootComment: false
-        }));
+    if(parenComment){parenComment.replies.push(...repliesIds);}   
+    let mappedReplies = replies as Models.Comment[]; // TODO: Same as the other cast, is this ok? 
     commentsCopy.push(...mappedReplies);
     return commentsCopy;
 }

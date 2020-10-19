@@ -4,7 +4,7 @@ import Layout from './components/Layout';
 import Boards from './components/Boards';
 import Board from './components/Board';
 
-import './custom.css';
+import './css/custom.css';
 
 export default () => (
     <Layout>

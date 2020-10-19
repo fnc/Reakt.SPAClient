@@ -16,3 +16,12 @@ export interface Comment {
     deletedAt: Date;
     updatedAt: Date;
 }
+
+export interface Post {
+    tittle: string;
+    description: string;
+    id: number;
+    createdAt: Date;
+    deletedAt: Date;
+    updatedAt: Date;
+}

@@ -20,6 +20,18 @@ export function post(url: string, payload: any): Promise<Response> {
         });
 }
 
+export function remove(url: string  ): Promise<Response> {
+    return fetch(url,
+        {
+            method: 'DELETE',           
+            headers: {
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'localhost:3000',
+                'Content-Type': 'application/json',
+              },            
+        });
+}
+
 export function patchReplace(url: string, path: string, value: any): Promise<Response> {
     return fetch(url,
         {
@@ -30,6 +42,11 @@ export function patchReplace(url: string, path: string, value: any): Promise<Res
                     path: path,
                     value: value
                 }
-                ])
+                ]),
+            headers: {
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'localhost:3000',
+                'Content-Type': 'application/json',
+                }   
         });
 }

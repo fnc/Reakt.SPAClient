@@ -36,14 +36,26 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     }
   }
 
+  public componentDidUpdate() {
+    if (this.props.id === this.props.expandedPost) {
+      this.ensureDataFetched();
+    }
+  }
+
+  // Data fetching should be made on this Lifecycle (https://reactjs.org/docs/faq-ajax.html)
+  public componentDidMount() {
+    if (this.props.id === this.props.expandedPost) {
+      this.ensureDataFetched();
+    }
+  }
+
   private ensureDataFetched() {    
     this.props.requestComments(this.props.id);    
   }
 
   private handleChange = () => {          
     if (!this.state.isExpanded) {
-      this.props.changeExpandedPost(this.props.id);
-      this.ensureDataFetched()    
+      this.props.changeExpandedPost(this.props.id);      
     }
   }
 

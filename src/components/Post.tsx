@@ -15,7 +15,7 @@ type PostProps =
   Models.Post    
   & CommentsStore.CommentsState
   & typeof CommentsStore.actionCreators  
-  & { changeExpandedPost: (id: number) => any }
+  & { changeExpandedPost: (id: number) => any, handlePostLike: (amount: number, postId: number) => any }
   & { expandedPost: number }
   ;
 
@@ -32,7 +32,20 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.state={
       newCommentMessage: "",
       showReplyBox: false,      
-      isExpanded: false,
+      isExpanded: this.props.id === this.props.expandedPost,
+    }
+  }
+
+  public componentDidUpdate() {
+    if (this.props.id === this.props.expandedPost) {
+      this.ensureDataFetched();
+    }
+  }
+
+  // Data fetching should be made on this Lifecycle (https://reactjs.org/docs/faq-ajax.html)
+  public componentDidMount() {
+    if (this.props.id === this.props.expandedPost) {
+      this.ensureDataFetched();
     }
   }
 
@@ -40,14 +53,19 @@ class Post extends React.PureComponent<PostProps, IPostState> {
     this.props.requestComments(this.props.id);    
   }
 
-  private handleChange = () => {            
-    this.props.changeExpandedPost(this.props.id);
-    this.ensureDataFetched()    
+  private handleChange = () => {          
+    if (!this.state.isExpanded) {
+      this.props.changeExpandedPost(this.props.id);      
+    }
   }
 
   private handleReplySubmit = (message: string) => {    
     this.props.addComment(this.props.id, message)
   }  
+
+  private handlePostLike = (amount: number) => {
+    this.props.handlePostLike(amount, this.props.id);
+  }
 
   public render() {        
     return (                  
@@ -80,7 +98,7 @@ class Post extends React.PureComponent<PostProps, IPostState> {
           <Typography variant="h6">{this.props.description}</Typography>             
         </CardContent>
         <CardActions>
-          <Like likes={15} commentId={this.props.id}/>
+          <Like likes={this.props.likes} parentId={this.props.id} handleClick={this.handlePostLike}/>
           <ReplyBox handleSubmit={this.handleReplySubmit} text="New Top comment" color="primary"/>
         </CardActions>
       </Card>
@@ -104,6 +122,7 @@ const mapDispatchToProps =
   addComment: CommentsStore.actionCreators.addComment,
   addReply: CommentsStore.actionCreators.addReply,
   changeExpandedPost: PostsStore.actionCreators.changeExpandedPost,
+  handlePostLike: PostsStore.actionCreators.handlePostLike,  
 }
 
 export default connect(

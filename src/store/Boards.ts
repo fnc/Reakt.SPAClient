@@ -1,8 +1,9 @@
 import { Reducer } from 'redux';
 import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
+import * as ApiModels from '../services/ApiModels';
 import { REQUEST_BOARDS, RECEIVE_BOARDS, CHANGE_CURR_BOARD  } from '../constants/action-types';
-
+import * as BoardService from '../services/BoardService';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -23,7 +24,7 @@ interface RequestBoardsAction {
 
 interface ReceiveBoardAction {
     type: typeof RECEIVE_BOARDS;    
-    boards: Models.Board[];
+    boards: ApiModels.Board[];
 }
 
 interface ChangeCurrBoard {
@@ -44,12 +45,11 @@ export const actionCreators = {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();        
         if (appState && appState.boards && appState.boards.boards.length === 0 && !appState.boards.isLoading) {            
-            dispatch({ type: REQUEST_BOARDS });
-            fetch("https://localhost:44387/api/boards")            
-                .then(response => response.json() as Promise<Models.Board[]>)
-                .then(data => {
-                    dispatch({ type: RECEIVE_BOARDS, boards: data });
-                });
+          dispatch({ type: REQUEST_BOARDS });
+          BoardService.getBoards()
+            .then(data => {
+              dispatch({ type: RECEIVE_BOARDS, boards: data });
+            });
         }
     },
     setCurrentBoard: (board: Models.Board): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -80,7 +80,7 @@ export const reducer: Reducer<BoardsState> = (state: BoardsState | undefined, ac
             };
         case RECEIVE_BOARDS:                  
             return {                
-                boards: action.boards,
+                boards: action.boards, //Doesnt seem to be necessary to map objects.
                 isLoading: false,
                 currentBoard: state.currentBoard,
             };   

@@ -2,9 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as Models from '../models/Models';
-import { Container, List, ListItem, Typography } from '@material-ui/core';
+import { Button, Container, List, ListItem, Typography } from '@material-ui/core';
 import * as CommentsStore from '../store/Comments';
 import ReplyBox from './ReplyBox';
+import Like from './Like';
 
 // At runtime, Redux will merge together...
 type CommentProps =
@@ -23,20 +24,26 @@ class Comment extends React.PureComponent<CommentProps, IState> {
       commentReply: "",
     }
   }
-  public componentDidMount() {
-    if (this.props.replyCount > 0) {
-      this.props.requestReplies(this.props.id);
-    }
+  
+  private handleCommentLike = (amount: number) => {
+    this.props.handleCommentLike(amount, this.props.id);
   }
+
+
   public render() {
     return (
-      <Container>
+      <Container className="comment-border">
         <Typography variant="h6">{this.props.message}</Typography>
+        <Like parentId={this.props.id} likes={this.props.likes} handleClick={this.handleCommentLike}/>
+        {this.props.replyCount > 0 && this.props.replies.length === 0 && this.renderLoadRepliesButton()} 
         <ReplyBox handleSubmit={this.handleReplySubmit} text="Reply" color="secondary" />
-        {this.props.replies && this.renderChildren()}
+        {/* check for length since replies will never be undefined */}
+        {this.props.replies.length > 0 && this.renderChildren()}
       </Container>
     );
   }
+
+
   private renderChildren() {
     return (
       <Container>
@@ -56,6 +63,7 @@ class Comment extends React.PureComponent<CommentProps, IState> {
                     addComment={this.props.addComment}
                     addReply={this.props.addReply}
                     requestReplies={this.props.requestReplies}
+                    handleCommentLike={this.props.handleCommentLike}
                     {...comment} />
                 </ListItem>
               );
@@ -64,6 +72,12 @@ class Comment extends React.PureComponent<CommentProps, IState> {
           })}
         </List>
       </Container>
+    )
+  }
+
+  private renderLoadRepliesButton = () => {
+    return (
+      <Button onClick={() => {this.props.requestReplies(this.props.id)}}>Load replies!</Button>
     )
   }
 

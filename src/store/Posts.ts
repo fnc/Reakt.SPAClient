@@ -37,7 +37,26 @@ interface ChangeExpandedPostAction {
   postId: number;
 }
 
-type KnownAction = RequestPostsAction | ReceivePostAction | RequestAddPostAction | AddedPostAction | ChangeExpandedPostAction;
+interface RequestPostLikeAction {
+  type: typeof Actions.REQUEST_POST_LIKE
+}
+
+// TODO: Technically, it would always be a +1. but maybe a super user could give +5 someday. would it be ok to keep it this way? No harm done after all
+interface UpdatedPostLikeAction {
+  type: typeof Actions.UPDATED_POST_LIKE;
+  amount: number;
+  postId: number;
+}
+
+type KnownAction =
+  RequestPostsAction 
+ | ReceivePostAction 
+ | RequestAddPostAction 
+ | AddedPostAction 
+ | ChangeExpandedPostAction 
+ | RequestPostLikeAction
+ | UpdatedPostLikeAction
+ ;
 
 
 
@@ -71,6 +90,11 @@ export const actionCreators = {
     if (appState.posts && appState.posts.expandedPost !== postId) {
       dispatch({ type: Actions.CHANGE_EXPANDED_POST, postId });
     }
+  },
+  handlePostLike: (amount: number, postId: number): AppThunkAction<KnownAction> => (dispatch) => {
+    // TODO: Hit the server! 
+    dispatch({ type: Actions.REQUEST_POST_LIKE });
+    dispatch({ type: Actions.UPDATED_POST_LIKE, amount, postId });
   }
 };
 
@@ -91,6 +115,8 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
           expandedPost: state.expandedPost,
         };
       case Actions.RECEIVE_POSTS:        
+        // TODO: this must be done here since the post likes do not exist on the api
+        action.posts.forEach((p) => {p.likes = 0});
         return {                
           posts: action.posts,
           isLoading: false,
@@ -118,7 +144,31 @@ export const reducer: Reducer<PostsState> = (state: PostsState | undefined, acti
           boardId: state.boardId,
           expandedPost: action.postId,
         }
+      case Actions.REQUEST_POST_LIKE:
+        return {
+          posts: state.posts,
+          isLoading: true,
+          boardId: state.boardId,
+          expandedPost: state.expandedPost,
+        }
+      case Actions.UPDATED_POST_LIKE:
+        return {
+          posts: likeAPostFunc(state.posts, action.postId, action.amount),
+          isLoading: true,
+          boardId: state.boardId,
+          expandedPost: state.expandedPost,
+        }
       default: 
           return state;
     };        
 };
+
+const likeAPostFunc = (posts: Models.Post[], postId: number, amount: number) => {
+  const postsCopy = posts.slice();
+  postsCopy.forEach(x => {
+    if (x.id === postId) {
+      x.likes += amount;
+    }
+  });
+  return postsCopy;
+}

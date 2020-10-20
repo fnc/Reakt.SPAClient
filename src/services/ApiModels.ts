@@ -25,7 +25,12 @@ export interface Comment extends Auditable {
     replyCount: number;    
 }
 
+export interface Post extends Auditable {
+    title: string;
+    description: string;    
+}
+
 export interface Board extends Auditable {
-  title: string;
-  description: string;  
+    title: string;
+    description: string;    
 }

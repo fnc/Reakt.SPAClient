@@ -3,7 +3,7 @@ import { AppThunkAction } from '.';
 import * as Models from '../models/Models';
 import * as ApiModels from '../services/ApiModels';
 import { REQUEST_BOARDS, RECEIVE_BOARDS, CHANGE_CURR_BOARD  } from '../constants/action-types';
-import * as BoardService from '../services/BoardsService';
+import * as BoardService from '../services/BoardService';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
